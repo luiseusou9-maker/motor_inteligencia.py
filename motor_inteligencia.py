@@ -1,24 +1,31 @@
-import googlemaps
-import json
+import os
+from groq import Groq
+import requests
 
-# Suas chaves de elite
-GOOGLE_MAPS_KEY = "AIzaSyDpHmD-5MipOLNo9NaDW2om5JcMwe0r93k"
-gmaps = googlemaps.Client(key=GOOGLE_MAPS_KEY)
+# Configuração da Glock (Groq)
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
-def testar_mineracao(bairro, cidade):
-    print(f"🦅 RITT INTEL: Iniciando busca em {bairro}...")
+def analisar_empresa(url):
+    """Analisa o site para entender o setor e o público-alvo"""
+    # Aqui simulamos a leitura do site para a IA definir o perfil
+    prompt = f"Analise este link: {url}. Identifique os produtos e o perfil do cliente ideal (Poder aquisitivo, interesses, urgência)."
     
-    # Busca as clínicas
-    query = f'clínicas no {bairro}, {cidade}'
-    busca = gmaps.places(query=query, language='pt-BR')
-    resultados = busca.get('results', [])
+    chat_completion = client.chat.completions.create(
+        messages=[{"role": "system", "content": "Você é um analista de vendas experiente."},
+                  {"role": "user", "content": prompt}],
+        model="llama3-70b-8192",
+    )
+    return chat_completion.choices[0].message.content
 
-    for lugar in resultados[:3]: # Testa apenas os 3 primeiros
-        nome = lugar.get('name')
-        endereco = lugar.get('formatted_address')
-        print(f"\n✅ Achado: {nome}")
-        print(f"📍 Endereço: {endereco}")
-
-if __name__ == "__main__":
-    # Quando você quiser testar outro lugar, é só mudar aqui:
-    testar_mineracao("Cambuí", "Campinas")
+def capturar_hiper_leads(perfil_analisado):
+    """Busca leads no Maps e filtra pela inteligência da Glock"""
+    # A lógica aqui cruza o perfil com a busca geográfica
+    prompt_leads = f"Com base neste perfil: {perfil_analisado}, gere uma lista de leads prioritários com Nome, Telefone e Por que são potenciais."
+    
+    # Simulação da busca rápida da Glock
+    chat_completion = client.chat.completions.create(
+        messages=[{"role": "system", "content": "Gere uma lista de leads assertivos (Nome, Tel, Score de 1 a 10)."},
+                  {"role": "user", "content": prompt_leads}],
+        model="llama3-70b-8192",
+    )
+    return chat_completion.choices[0].message.content

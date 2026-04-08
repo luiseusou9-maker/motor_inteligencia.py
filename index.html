@@ -1,55 +1,33 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>RITT Intelligence | Elite</title>
+    <title>RITT - Motor de Inteligência</title>
     <style>
-        :root { --blue: #38bdf8; --bg: #020617; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 40px; }
-        .btn { background: var(--blue); color: var(--bg); padding: 18px 35px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer; transition: 0.3s; font-size: 1rem; }
-        .btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(56, 189, 248, 0.4); }
-        .status-box { margin: 25px; padding: 15px; border-radius: 8px; border: 1px solid #1e293b; min-width: 300px; text-align: center; }
-        .lead-list { width: 100%; max-width: 700px; }
-        .card { background: #0f172a; border: 1px solid #1e293b; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid var(--blue); }
+        body { background: #0a0a0a; color: #00ff41; font-family: 'Courier New', monospace; }
+        .container { max-width: 800px; margin: 50px auto; border: 1px solid #00ff41; padding: 20px; box-shadow: 0 0 15px #00ff41; }
+        input { width: 80%; padding: 10px; background: #1a1a1a; border: 1px solid #00ff41; color: white; }
+        button { padding: 10px 20px; background: #00ff41; color: black; font-weight: bold; cursor: pointer; }
+        .leads { margin-top: 20px; border-top: 1px solid #333; padding-top: 20px; }
     </style>
 </head>
 <body>
-    <h1>🦅 RITT INTELLIGENCE</h1>
-    <div class="status-box" id="status">Sincronizado com o Motor</div>
-    <button class="btn" onclick="minerar()">🚀 INICIAR VARREDURA CAMBUÍ</button>
-    <div class="lead-list" id="leads"></div>
+    <div class="container">
+        <h1>SISTEMA DE CAPTURA RITT - GLOCK API</h1>
+        <p>Cole o link da empresa para mapear leads potenciais:</p>
+        <input type="text" id="siteLink" placeholder="https://exemplo.com.br">
+        <button onclick="iniciarBusca()">ESTRALAR MOTOR</button>
+        
+        <div id="status" style="margin-top: 10px;"></div>
+        <div class="leads" id="resultado">
+            </div>
+    </div>
 
     <script>
-        async function minerar() {
-            const st = document.getElementById('status');
-            st.innerHTML = "⚡ <span style='color:#38bdf8'>MOTOR EM OPERAÇÃO...</span>";
-            try {
-                const res = await fetch('/api/minerar');
-                const data = await res.json();
-                if (data.status === "sucesso") {
-                    st.innerHTML = "✅ <span style='color:#4ade80'>VARREDURA COMPLETA!</span>";
-                    carregar();
-                } else {
-                    st.innerHTML = "❌ <span style='color:#f87171'>ERRO TÉCNICO: " + data.mensagem + "</span>";
-                }
-            } catch (e) {
-                st.innerText = "❌ FALHA CRÍTICA DE CONEXÃO";
-            }
+        async function iniciarBusca() {
+            const link = document.getElementById('siteLink').value;
+            document.getElementById('status').innerText = "Rastreando empresa e costurando leads...";
+            // Chamada para sua API na Vercel
         }
-
-        async function carregar() {
-            const res = await fetch('/api/leads');
-            const data = await res.json();
-            document.getElementById('leads').innerHTML = data.map(l => `
-                <div class="card">
-                    <strong>${l.nome}</strong><br>
-                    <small>📍 ${l.endereco}</small><br>
-                    <small>📞 ${l.telefone}</small>
-                </div>
-            `).join('');
-        }
-        carregar();
-        setInterval(carregar, 15000);
     </script>
 </body>
 </html>

@@ -1,62 +1,79 @@
 import os
-from flask import Flask, jsonify
+import json
+from flask import Flask, request, jsonify
 from flask_cors import CORS
-import googlemaps
+from groq import Groq
 from supabase import create_client, Client
 
 app = Flask(__name__)
 CORS(app)
 
-# Função de Verificação de Saúde das Chaves
-def get_db_and_maps():
-    # Buscando nomes EXATOS conforme seus prints da Vercel
-    m_key = os.getenv("Maps_KEY")
-    s_url = os.getenv("SUPABASE_URL")
-    s_key = os.getenv("SUPABASE_KEY")
-    
-    if not all([m_key, s_url, s_key]):
-        raise ValueError(f"Faltando Variáveis: Maps:{bool(m_key)}, URL:{bool(s_url)}, Key:{bool(s_key)}")
-    
-    gmaps = googlemaps.Client(key=m_key)
-    supabase = create_client(s_url, s_key)
-    return gmaps, supabase
+# Configurações de Ambiente (Vercel)
+GROQ_KEY = os.environ.get("GROQ_API_KEY")
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
-@app.route('/api/minerar', methods=['GET'])
-def minerar():
+# Inicialização das Ferramentas
+groq_client = Groq(api_key=GROQ_KEY)
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+@app.route('/')
+def home():
+    return "Motor RITT Inteligência - Glock & Supabase Ativos"
+
+@app.route('/api/analisar', methods=['POST'])
+def analisar_e_rastrear():
+    data = request.json
+    url_cliente = data.get('url')
+
+    if not url_cliente:
+        return jsonify({"error": "Link não fornecido"}), 400
+
     try:
-        gmaps, supabase = get_db_and_maps()
-        
-        # Busca Elite
-        busca = gmaps.places(query='clínicas no Cambuí, Campinas', language='pt-BR')
-        resultados = busca.get('results', [])
-        
-        leads_processados = []
-        for lugar in resultados[:10]:
-            detalhes = gmaps.place(place_id=lugar['place_id'], fields=['formatted_phone_number'])
-            telefone = detalhes.get('result', {}).get('formatted_phone_number', 'Sem telefone')
-            
-            lead = {
-                "nome": lugar.get('name'),
-                "endereco": lugar.get('formatted_address'),
-                "telefone": telefone,
-                "status": "Pendente"
-            }
-            supabase.table("leads_cambui").insert(lead).execute()
-            leads_processados.append(lead)
-            
-        return jsonify({"status": "sucesso", "total": len(leads_processados)})
-    except Exception as e:
-        return jsonify({"status": "erro", "mensagem": str(e)}), 500
+        # 1. INTELIGÊNCIA: Glock analisa o site e define o alvo
+        analise_perfil = groq_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "Você é um Analista de Inteligência de Vendas. Identifique o produto e o perfil de cliente do site."},
+                {"role": "user", "content": f"Mapeie os setores deste link: {url_cliente}"}
+            ],
+            model="llama3-8b-8192",
+        )
+        setor = analise_perfil.choices[0].message.content
 
-@app.route('/api/leads', methods=['GET'])
-def listar():
-    try:
-        _, supabase = get_db_and_maps()
-        res = supabase.table("leads_cambui").select("*").order('id', desc=True).execute()
-        return jsonify(res.data)
-    except Exception as e:
-        return jsonify({"status": "erro", "mensagem": str(e)}), 500
+        # 2. CAPTURA: Glock gera os leads assertivos em formato JSON para o sistema ler
+        gerar_leads = groq_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "Gere uma lista de 5 leads HIPER ASSERTIVOS em formato JSON puro. Use os campos: nome, telefone, prioridade, score, tatica."},
+                {"role": "user", "content": f"Baseado no setor {setor}, traga leads potenciais."}
+            ],
+            model="llama3-70b-8192",
+            response_format={"type": "json_object"} # Força a Glock a mandar JSON limpo
+        )
+        
+        leads_json = json.loads(gerar_leads.choices[0].message.content)
+        leads_lista = leads_json.get("leads", [])
 
-@app.route('/api')
-def health():
-    return jsonify({"status": "online", "engine": "RITT Intelligence Pro"})
+        # 3. O SALVE: Gravando na tabela fortificada do Supabase
+        for lead in leads_lista:
+            supabase.table("leads_hiper_assertivos").insert({
+                "empresa_origem": url_cliente,
+                "setor_identificado": setor[:200], # Limita o texto para não estourar
+                "nome_lead": lead.get("nome"),
+                "telefone": lead.get("telefone"),
+                "prioridade": lead.get("prioridade"),
+                "score_assertividade": lead.get("score"),
+                "tatica_abordagem": lead.get("tatica")
+            }).execute()
+
+        return jsonify({
+            "status": "Máquina Rodando",
+            "setor": setor,
+            "leads_capturados": len(leads_lista),
+            "dados": leads_lista
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)

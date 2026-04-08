@@ -1,4 +1,6 @@
+groq
+requests
 flask
 flask-cors
-googlemaps
+python-dotenv
 supabase
