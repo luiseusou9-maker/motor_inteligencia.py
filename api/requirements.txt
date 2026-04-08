@@ -1,6 +1,5 @@
-groq
-requests
+groq>=0.9.0
 flask
 flask-cors
-python-dotenv
 supabase
+python-dotenv

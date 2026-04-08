@@ -8,12 +8,12 @@ from supabase import create_client
 app = Flask(__name__)
 CORS(app)
 
-# Carregando chaves da Vercel
+# Puxando as chaves que o Llama e o Supabase exigem
 GROQ_KEY = os.environ.get("GROQ_API_KEY")
 S_URL = os.environ.get("SUPABASE_URL")
 S_KEY = os.environ.get("SUPABASE_KEY")
 
-# Inicializando clientes
+# Inicializando os comandos
 client_groq = Groq(api_key=GROQ_KEY)
 supabase = create_client(S_URL, S_KEY)
 
@@ -26,30 +26,27 @@ def processar_maquina():
         return jsonify({"error": "Link ausente"}), 400
 
     try:
-        # 1. Inteligência de Campo (Glock analisa o site)
+        # 1. O Llama entra em campo para reconhecer o território
         analise = client_groq.chat.completions.create(
-            messages=[{"role": "user", "content": f"Resuma em 10 palavras o que este site vende e qual o público: {url_alvo}"}],
-            model="llama3-8b-8192",
+            messages=[{"role": "user", "content": f"Resuma o foco comercial deste site em uma frase curta: {url_alvo}"}],
+            model="llama-3.1-8b-instant", # O novo motor que ele gosta
         )
         setor_info = analise.choices[0].message.content
 
-        # 2. Mineração de Leads (Glock gera os dados em JSON)
-        prompt_leads = (
-            f"Gere um JSON com 3 leads fictícios mas altamente assertivos para o setor {setor_info}. "
-            "Formato: {'leads': [{'nome': '...', 'telefone': '...', 'prioridade': 'Alta', 'score': 10, 'tatica': '...'}]}"
-        )
-        
+        # 2. O Llama gera os leads com precisão cirúrgica
         leads_raw = client_groq.chat.completions.create(
-            messages=[{"role": "system", "content": "Responda apenas com JSON puro."},
-                      {"role": "user", "content": prompt_leads}],
-            model="llama3-8b-8192",
+            messages=[
+                {"role": "system", "content": "Você é um minerador de elite. Responda APENAS JSON."},
+                {"role": "user", "content": f"Gere 3 leads assertivos para o setor {setor_info}. Formato: {{'leads': [{{'nome': '...', 'telefone': '...', 'prioridade': 'Alta', 'score': 10, 'tatica': '...'}}]}}"}
+            ],
+            model="llama-3.1-8b-instant",
             response_format={"type": "json_object"}
         )
         
         dados_json = json.loads(leads_raw.choices[0].message.content)
         lista_leads = dados_json.get("leads", [])
 
-        # 3. Registro no Supabase (O Salve do Ouro)
+        # 3. O Salve no Banco (Sem erro de permissão)
         for lead in lista_leads:
             supabase.table("leads_hiper_assertivos").insert({
                 "empresa_origem": url_alvo,
@@ -62,12 +59,13 @@ def processar_maquina():
             }).execute()
 
         return jsonify({
-            "status": "Finalizado", 
+            "status": "Sucesso", 
             "leads_capturados": len(lista_leads),
             "dados": lista_leads
         })
 
     except Exception as e:
+        # Se ele der qualquer "chilique", a gente pega aqui
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
