@@ -2,122 +2,82 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>NEURAL COMMANDER - Inteligência de Elite</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEURAL COMMANDER - Elite Leads</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        body { background: #050505; color: #00ff41; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
-        .terminal { width: 100%; max-width: 850px; background: rgba(0, 10, 0, 0.98); border: 2px solid #00ff41; padding: 25px; box-shadow: 0 0 40px rgba(0, 255, 65, 0.2); border-radius: 8px; position: relative; }
-        
-        /* Nome Diferenciado */
-        h1 { text-align: center; font-size: 1.7rem; text-transform: uppercase; letter-spacing: 8px; color: #fff; text-shadow: 0 0 20px #00ff41; margin-bottom: 30px; border-bottom: 2px solid #00ff41; padding-bottom: 15px; }
-        
-        .input-group { margin-bottom: 25px; }
-        input { width: 100%; padding: 20px; background: #000; border: 1px solid #008f11; color: #00ff41; font-size: 1.1rem; outline: none; box-sizing: border-box; margin-bottom: 15px; transition: 0.3s; }
-        input:focus { border-color: #fff; box-shadow: 0 0 10px #00ff41; }
-        
-        button { width: 100%; padding: 22px; background: #00ff41; color: #000; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 1.2rem; transition: 0.4s; letter-spacing: 2px; }
-        button:hover { background: #fff; box-shadow: 0 0 30px #fff; color: #000; }
-        
-        #status { margin: 20px 0; font-size: 1.1rem; color: #ffeb3b; font-weight: bold; text-align: center; min-height: 30px; text-transform: uppercase; }
-        
-        /* Lista de Alvos Extraídos */
-        #resultado { margin-top: 25px; max-height: 500px; overflow-y: auto; background: #000; padding: 20px; border: 1px solid #00ff41; border-radius: 4px; display: none; }
-        
-        .card { 
-            background: #080808; border: 1px solid #1a1a1a; padding: 25px; margin-bottom: 20px; 
-            border-left: 8px solid #00ff41; animation: slideIn 0.6s ease-out; color: #fff; 
-        }
-        
-        /* Identificação de Rank */
-        .rank-alta { border-left-color: #ff9800 !important; box-shadow: inset 10px 0 15px rgba(255,152,0,0.05); } 
-        .rank-media { border-left-color: #2196f3 !important; }
-        
-        .social-btn { background: #00ff41; color: #000; text-decoration: none; font-weight: bold; padding: 10px 20px; border-radius: 4px; font-size: 0.85rem; display: inline-block; transition: 0.3s; margin-top: 15px; }
-        .social-btn:hover { background: #fff; box-shadow: 0 0 15px #fff; }
-
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
-        
-        #resultado::-webkit-scrollbar { width: 10px; }
-        #resultado::-webkit-scrollbar-thumb { background: #008f11; border-radius: 10px; }
+        :root { --neon-blue: #00f3ff; --neon-green: #00ff41; --dark-bg: #0a0a0a; }
+        body { background: var(--dark-bg); color: white; font-family: 'Roboto', sans-serif; margin: 0; padding: 20px; text-align: center; }
+        h1 { font-family: 'Orbitron', sans-serif; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
+        .container { max-width: 900px; margin: auto; background: #151515; padding: 30px; border-radius: 15px; border: 1px solid #333; }
+        input { width: 80%; padding: 15px; border-radius: 5px; border: 1px solid var(--neon-blue); background: #000; color: white; margin-bottom: 20px; font-size: 16px; }
+        button { background: var(--neon-blue); color: black; padding: 15px 30px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: 'Orbitron', sans-serif; transition: 0.3s; }
+        button:hover { background: var(--neon-green); box-shadow: 0 0 20px var(--neon-green); }
+        #resultados { margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; }
+        .card { background: #1a1a1a; padding: 20px; border-left: 5px solid var(--neon-blue); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .card h3 { margin-top: 0; color: var(--neon-blue); }
+        .status-badge { background: #333; padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
+        .momento-quente { color: var(--neon-green); border: 1px solid var(--neon-green); }
+        .loading { display: none; color: var(--neon-green); margin-top: 20px; font-family: 'Orbitron', sans-serif; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
     </style>
 </head>
 <body>
-    <div class="terminal">
+
+    <div class="container">
         <h1>NEURAL COMMANDER</h1>
-        <div class="input-group">
-            <input type="text" id="siteLink" placeholder="INSIRA O ALVO PARA ANÁLISE NEURAL..." value="">
-            <button onclick="dispararMotor()">⚡ EXECUTAR VARREDURA EM MASSA</button>
-        </div>
+        <p>Infiltrando dados e extraindo leads de alta conversão.</p>
         
-        <div id="status">AGUARDANDO COORDENADAS...</div>
-        <div id="resultado"></div>
+        <input type="text" id="urlInput" placeholder="Cole a URL do alvo (ex: https://hitimoveis.com.br)">
+        <br>
+        <button onclick="dispararMotor()">⚡ EXECUTAR VARREDURA</button>
+
+        <div id="loading" class="loading">🛰️ ANALISANDO DNA DO SITE E RASTREANDO TUBARÕES...</div>
+
+        <div id="resultados"></div>
     </div>
 
     <script>
         async function dispararMotor() {
-            const link = document.getElementById('siteLink').value;
-            const statusDiv = document.getElementById('status');
-            const resArea = document.getElementById('resultado');
+            const url = document.getElementById('urlInput').value;
+            const resDiv = document.getElementById('resultados');
+            const loader = document.getElementById('loading');
 
-            if (!link) {
-                statusDiv.innerText = "🚨 ALVO NÃO DEFINIDO. INSIRA A URL.";
-                return;
-            }
+            if (!url) return alert("Comandante, insira uma URL válida!");
 
-            resArea.innerHTML = "";
-            resArea.style.display = "block"; 
-            
-            // Ciclos de 10 leads cada para profundidade total
-            for (let i = 1; i <= 6; i++) {
-                statusDiv.innerText = `🛰️ CICLO DE VARREDURA ${i}/6: PROCESSANDO DADOS...`;
-                
-                try {
-                    const resp = await fetch('/api/analisar', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ url: link })
+            resDiv.innerHTML = '';
+            loader.style.display = 'block';
+
+            try {
+                const response = await fetch('/api/analisar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+
+                const data = await response.json();
+                loader.style.display = 'none';
+
+                if (data.dados) {
+                    data.dados.forEach(lead => {
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.innerHTML = `
+                            <h3>👤 ${lead.nome}</h3>
+                            <p><span class="status-badge">Rank ${lead.classe}</span> | 💰 ${lead.salario}</p>
+                            <p><strong>💼 Cargo:</strong> ${lead.cargo}</p>
+                            <p><strong>🔥 Momento:</strong> <span class="momento-quente">${lead.momento}</span></p>
+                            <p><strong>🎯 Alvo:</strong> ${lead.produto}</p>
+                            <p><strong>📱 TEL:</strong> ${lead.telefone}</p>
+                            <p><strong>💡 Tática:</strong> ${lead.tatica}</p>
+                        `;
+                        resDiv.appendChild(card);
                     });
-
-                    const data = await resp.json();
-
-                    if (data.dados && data.dados.length > 0) {
-                        data.dados.forEach(lead => {
-                            const card = document.createElement('div');
-                            
-                            // Logica de Rank (Classe)
-                            const c = lead.classe.toLowerCase();
-                            const rankClass = (c.includes('alta') || c.includes('a')) ? 'rank-alta' : 
-                                              (c.includes('media') || c.includes('média') || c.includes('b')) ? 'rank-media' : '';
-
-                            card.className = `card ${rankClass}`;
-                            card.innerHTML = `
-                                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #333; padding-bottom: 12px; margin-bottom: 15px;">
-                                    <b style="color:#00ff41; font-size:1.3rem;">${lead.nome}</b>
-                                    <span style="color:#ffeb3b; font-size:0.9rem; font-weight:bold;">[RANK: ${lead.classe.toUpperCase()}]</span>
-                                </div>
-                                <div style="margin:15px 0; font-size:1rem; color:#e0e0e0; line-height:1.6;">
-                                    🎯 <b>Foco de Atuação:</b> ${lead.produto}<br>
-                                    📉 <b>Estágio Neural:</b> ${lead.estagio}<br>
-                                    💡 <b>Tática Sugerida:</b> ${lead.tatica}
-                                </div>
-                                <div style="display:flex; justify-content:space-between; align-items:center; border-top: 1px solid #222; padding-top: 15px;">
-                                    <b style="color:#fff; font-size:1.1rem;">📱 TEL: ${lead.telefone}</b>
-                                    <a href="${lead.rede_social}" target="_blank" class="social-btn">ANALISAR PERFIL</a>
-                                </div>
-                            `;
-                            resArea.prepend(card); 
-                        });
-                        statusDiv.innerText = `⏳ CARGA ${i} CONCLUÍDA. RECALIBRANDO SENSORES...`;
-                    }
-
-                    // A PAUSA DE MESTRE: 15 segundos entre cargas para análise profunda
-                    await new Promise(r => setTimeout(r, 15000));
-
-                } catch (err) {
-                    statusDiv.innerText = "🚨 FALHA CRÍTICA NO MOTOR DE BUSCA.";
-                    break;
                 }
+            } catch (err) {
+                loader.style.display = 'none';
+                alert("Erro na infiltração: " + err);
             }
-            statusDiv.innerText = "🏆 OPERAÇÃO FINALIZADA. TODOS OS ALVOS EXTRAÍDOS.";
         }
     </script>
 </body>
