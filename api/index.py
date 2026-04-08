@@ -7,16 +7,16 @@ from supabase import create_client, Client
 app = Flask(__name__)
 CORS(app)
 
-# --- ARQUITETURA DE SEGURANÇA ---
-def iniciar_servicos():
-    # Puxa as chaves do cofre da Vercel que você configurou
+# Função de Verificação de Saúde das Chaves
+def get_db_and_maps():
+    # Buscando nomes EXATOS conforme seus prints da Vercel
     m_key = os.getenv("Maps_KEY")
     s_url = os.getenv("SUPABASE_URL")
     s_key = os.getenv("SUPABASE_KEY")
     
     if not all([m_key, s_url, s_key]):
-        raise ValueError("Chaves ausentes no ambiente da Vercel")
-        
+        raise ValueError(f"Faltando Variáveis: Maps:{bool(m_key)}, URL:{bool(s_url)}, Key:{bool(s_key)}")
+    
     gmaps = googlemaps.Client(key=m_key)
     supabase = create_client(s_url, s_key)
     return gmaps, supabase
@@ -24,37 +24,39 @@ def iniciar_servicos():
 @app.route('/api/minerar', methods=['GET'])
 def minerar():
     try:
-        gmaps, supabase = iniciar_servicos()
+        gmaps, supabase = get_db_and_maps()
         
-        # Busca qualificada: Clínicas no Cambuí
+        # Busca Elite
         busca = gmaps.places(query='clínicas no Cambuí, Campinas', language='pt-BR')
         resultados = busca.get('results', [])
         
-        processados = []
+        leads_processados = []
         for lugar in resultados[:10]:
+            detalhes = gmaps.place(place_id=lugar['place_id'], fields=['formatted_phone_number'])
+            telefone = detalhes.get('result', {}).get('formatted_phone_number', 'Sem telefone')
+            
             lead = {
                 "nome": lugar.get('name'),
                 "endereco": lugar.get('formatted_address'),
+                "telefone": telefone,
                 "status": "Pendente"
             }
-            # Gravação direta no banco
             supabase.table("leads_cambui").insert(lead).execute()
-            processados.append(lead)
+            leads_processados.append(lead)
             
-        return jsonify({"status": "sucesso", "total": len(processados)})
+        return jsonify({"status": "sucesso", "total": len(leads_processados)})
     except Exception as e:
-        # Se der erro, ele explica o motivo em vez de só dar 500
-        return jsonify({"status": "erro", "detalhes": str(e)}), 500
+        return jsonify({"status": "erro", "mensagem": str(e)}), 500
 
 @app.route('/api/leads', methods=['GET'])
 def listar():
     try:
-        _, supabase = iniciar_servicos()
+        _, supabase = get_db_and_maps()
         res = supabase.table("leads_cambui").select("*").order('id', desc=True).execute()
         return jsonify(res.data)
     except Exception as e:
-        return jsonify({"erro": str(e)}), 500
+        return jsonify({"status": "erro", "mensagem": str(e)}), 500
 
 @app.route('/api')
-def home():
-    return jsonify({"projeto": "RITT Intelligence", "engine": "Python 3.14"})
+def health():
+    return jsonify({"status": "online", "engine": "RITT Intelligence Pro"})

@@ -2,4 +2,3 @@ flask
 flask-cors
 googlemaps
 supabase
-python-dotenv
