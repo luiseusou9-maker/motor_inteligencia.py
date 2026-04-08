@@ -2,124 +2,107 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>RITT INTEL - Engenharia de Elite</title>
+    <title>LUIS INTEL - Engenharia de Elite</title>
     <style>
-        body { background: #050505; color: #00ff41; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
-        .terminal { width: 95%; max-width: 900px; background: rgba(0, 20, 0, 0.95); border: 2px solid #00ff41; padding: 25px; box-shadow: 0 0 30px #00ff41; border-radius: 5px; position: relative; }
-        h1 { text-align: center; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 4px; border-bottom: 2px solid #00ff41; padding-bottom: 15px; margin-top: 0; }
+        body { background: #050505; color: #00ff41; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .terminal { width: 100%; max-width: 900px; background: rgba(0, 10, 0, 0.95); border: 2px solid #00ff41; padding: 25px; box-shadow: 0 0 30px #00ff41; border-radius: 5px; }
+        h1 { text-align: center; font-size: 1.6rem; text-transform: uppercase; letter-spacing: 5px; border-bottom: 2px solid #00ff41; padding-bottom: 15px; margin-top: 0; color: #fff; text-shadow: 0 0 10px #00ff41; }
         .input-group { margin: 20px 0; }
-        input { width: 100%; padding: 15px; background: #000; border: 1px solid #008f11; color: #00ff41; font-size: 1rem; outline: none; box-sizing: border-box; }
-        button { width: 100%; padding: 18px; background: #00ff41; color: #000; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 1rem; transition: 0.3s; box-shadow: 0 0 10px #00ff41; }
-        button:hover { background: #fff; color: #000; box-shadow: 0 0 20px #fff; }
-        #status { margin-top: 15px; font-size: 0.9rem; color: #ffeb3b; font-weight: bold; text-align: center; }
-        #resultado { margin-top: 20px; max-height: 350px; overflow-y: auto; background: #000; padding: 15px; border: 1px solid #00ff41; border-radius: 4px; }
+        input { width: 100%; padding: 18px; background: #000; border: 1px solid #008f11; color: #00ff41; font-size: 1.1rem; outline: none; box-sizing: border-box; }
+        button { width: 100%; padding: 20px; background: #00ff41; color: #000; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 1.1rem; transition: 0.3s; box-shadow: 0 0 15px #00ff41; }
+        button:hover { background: #fff; color: #000; box-shadow: 0 0 25px #fff; }
         
-        /* Estilo dos Cards de Elite */
+        #status { margin-top: 20px; font-size: 1.1rem; color: #ffeb3b; font-weight: bold; text-align: center; }
+        
+        /* O CONTAINER ONDE A MÁGICA ACONTECE */
+        #resultado { margin-top: 25px; max-height: 500px; overflow-y: auto; background: #000; padding: 15px; border: 1px solid #00ff41; border-radius: 4px; display: none; }
+        
         .lead-card { 
-            background: #111; 
-            border: 1px solid #333; 
-            padding: 15px; 
-            margin-bottom: 12px; 
-            border-left: 5px solid #00ff41; 
-            animation: fadeIn 0.5s ease-in;
+            background: #0d0d0d; border: 1px solid #222; padding: 20px; margin-bottom: 15px; 
+            border-left: 6px solid #00ff41; animation: fadeIn 0.6s ease-in-out; color: #fff; 
         }
-        .classe-alta { border-left-color: #ff9800 !important; } /* Cor Bronze/Ouro para Classe A */
-        .classe-media { border-left-color: #2196f3 !important; } /* Azul para Classe B */
+        .classe-alta { border-left-color: #ff9800 !important; box-shadow: inset 5px 0 10px rgba(255,152,0,0.1); }
+        .classe-media { border-left-color: #2196f3 !important; }
         
-        .social-link { color: #00ff41; text-decoration: none; font-weight: bold; border: 1px solid #00ff41; padding: 2px 8px; border-radius: 3px; font-size: 0.7rem; }
-        .social-link:hover { background: #00ff41; color: #000; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Scrollbar Hacker */
+        .social-btn { background: #00ff41; color: #000; text-decoration: none; font-weight: bold; padding: 8px 15px; border-radius: 3px; font-size: 0.85rem; display: inline-block; margin-top: 10px; transition: 0.2s; }
+        .social-btn:hover { background: #fff; box-shadow: 0 0 10px #fff; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         #resultado::-webkit-scrollbar { width: 8px; }
-        #resultado::-webkit-scrollbar-track { background: #000; }
         #resultado::-webkit-scrollbar-thumb { background: #008f11; border-radius: 10px; }
     </style>
 </head>
 <body>
     <div class="terminal">
-        <h1>RITT - Inteligência de Leads v3.0</h1>
+        <h1>LUIS - INTEL COMANDER</h1>
         <div class="input-group">
-            <p style="margin-bottom: 10px;">> Digite a URL para extração de dados:</p>
-            <input type="text" id="siteLink" placeholder="https://www.rittinvestimentos.com.br" value="">
-            <button onclick="iniciarMineraçãoEmMassa()">🚀 ESTRALAR MOTOR EM MASSA (60 LEADS)</button>
+            <input type="text" id="siteLink" placeholder="Cole a URL para extração profunda..." value="">
+            <button onclick="iniciarExtracao()">🚀 ESTRALAR MOTOR E ABRIR LISTA</button>
         </div>
         
-        <div id="status">Aguardando coordenadas...</div>
+        <div id="status">SISTEMA AGUARDANDO COMANDO...</div>
         <div id="resultado"></div>
     </div>
 
     <script>
-        async function iniciarMineraçãoEmMassa() {
-            const link = document.getElementById('siteLink').value;
-            const statusDiv = document.getElementById('status');
-            const resultadoDiv = document.getElementById('resultado');
+        async function iniciarExtracao() {
+            const url = document.getElementById('siteLink').value;
+            const status = document.getElementById('status');
+            const resArea = document.getElementById('resultado');
 
-            if (!link) {
-                statusDiv.innerText = "❌ ERRO: Capitão, preciso da URL para rastrear!";
-                return;
-            }
+            if (!url) { return alert("Capitão, cole a URL!"); }
 
-            resultadoDiv.innerHTML = "";
-            let totalLeads = 0;
-
-            // Loop de 6 ciclos (cada um gera 10 leads = 60 leads totais)
-            for (let ciclo = 1; ciclo <= 6; ciclo++) {
-                statusDiv.innerText = `🛰️ CICLO ${ciclo}/6: Perfurando banco de dados de elite...`;
+            resArea.innerHTML = "";
+            resArea.style.display = "block"; // ABRIR A LISTA NA HORA
+            
+            for (let i = 1; i <= 6; i++) {
+                status.innerHTML = `🛰️ CICLO ${i}/6: Minerando dados de Classe A e B...`;
                 
                 try {
-                    const response = await fetch('/api/analisar', {
+                    const resp = await fetch('/api/analisar', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ url: link })
+                        body: JSON.stringify({ url: url })
                     });
 
-                    const data = await response.json();
+                    const data = await resp.json();
 
-                    if (data.error) {
-                        statusDiv.innerText = "❌ FALHA NO MOTOR: " + data.error;
-                        break; 
-                    } else {
-                        totalLeads += data.leads_capturados;
-                        
-                        data.dados.forEach(l => {
+                    if (data.dados) {
+                        data.dados.forEach(lead => {
                             const card = document.createElement('div');
-                            // Diferenciação visual por classe
-                            let classeCSS = "";
-                            if(l.classe.includes("Alta") || l.classe.includes("A")) classeCSS = "classe-alta";
-                            if(l.classe.includes("Média") || l.classe.includes("B")) classeCSS = "classe-media";
-
-                            card.className = `lead-card ${classeCSS}`;
+                            // Identifica a classe para mudar a cor da borda
+                            const ehAlta = lead.classe.toLowerCase().includes('alta') || lead.classe.toLowerCase().includes('a');
+                            const ehMedia = lead.classe.toLowerCase().includes('media') || lead.classe.toLowerCase().includes('média') || lead.classe.toLowerCase().includes('b');
+                            
+                            card.className = `lead-card ${ehAlta ? 'classe-alta' : (ehMedia ? 'classe-media' : '')}`;
                             card.innerHTML = `
-                                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                                    <strong>${l.nome}</strong>
-                                    <span style="font-size: 0.7rem; background: #222; padding: 2px 5px;">${l.classe}</span>
+                                <div style="display:flex; justify-content:space-between;">
+                                    <b style="font-size:1.2rem; color:#00ff41;">${lead.nome}</b>
+                                    <span style="background:#222; padding:3px 10px; font-size:0.8rem; color:#ffeb3b;">CLASSE ${lead.classe}</span>
                                 </div>
-                                <div style="margin: 8px 0; font-size: 0.8rem; color: #ccc;">
-                                    🎯 <b>Foco:</b> ${l.produto}<br>
-                                    📉 <b>Status:</b> ${l.estagio}
+                                <div style="margin:10px 0; color:#ccc;">
+                                    🎯 <b>Interesse:</b> ${lead.produto}<br>
+                                    📈 <b>Status:</b> ${lead.estagio}<br>
+                                    💡 <b>Tática:</b> ${lead.tatica}
                                 </div>
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                                    <span>📱 ${l.telefone}</span>
-                                    <a href="${l.rede_social}" target="_blank" class="social-link">ANALISAR PERFIL</a>
+                                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #222; padding-top:10px;">
+                                    <b>📱 ${lead.telefone}</b>
+                                    <a href="${lead.rede_social}" target="_blank" class="social-btn">VER PERFIL SOCIAL</a>
                                 </div>
                             `;
-                            resultadoDiv.prepend(card); // Adiciona o novo lead no topo
+                            resArea.prepend(card); // Joga no topo conforme vai chegando
                         });
-                        
-                        statusDiv.innerText = `⏳ PROGRESSO: ${totalLeads} leads minerados... (Aguardando próximo ciclo)`;
-                        // Pequena pausa para a API respirar
-                        await new Promise(r => setTimeout(r, 1500));
+                        status.innerHTML = `✅ CICLO ${i} COMPLETO! (+${data.leads_capturados} leads)`;
                     }
-                } catch (err) {
-                    statusDiv.innerText = "🚨 ERRO CRÍTICO NA CONEXÃO.";
-                    console.error(err);
+                    // Delay para você conseguir ler e o motor não engasgar
+                    await new Promise(r => setTimeout(r, 2000));
+
+                } catch (e) {
+                    status.innerHTML = "🚨 ERRO NA COMUNICAÇÃO.";
                     break;
                 }
             }
-
-            statusDiv.innerText = `✅ MISSÃO CUMPRIDA! ${totalLeads} LEADS SALVOS NO SUPABASE.`;
+            status.innerHTML = "🏆 MISSÃO FINALIZADA. TODOS OS LEADS NA TELA E NO BANCO!";
         }
     </script>
 </body>
