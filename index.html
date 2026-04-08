@@ -2,78 +2,51 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RITT Intelligence | Dashboard</title>
+    <title>RITT Intelligence | Elite</title>
     <style>
-        :root { --primary: #38bdf8; --bg: #020617; --card: #0f172a; }
-        body { font-family: sans-serif; background: var(--bg); color: white; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .header { text-align: center; padding: 2rem; border-bottom: 1px solid #1e293b; width: 100%; }
-        .btn-run { background: var(--primary); color: var(--bg); border: none; padding: 15px 30px; font-weight: bold; border-radius: 8px; cursor: pointer; margin: 20px; transition: 0.3s; }
-        .btn-run:hover { transform: scale(1.05); filter: brightness(1.2); }
-        .dashboard { width: 90%; max-width: 800px; margin-top: 20px; }
-        .lead-card { background: var(--card); border: 1px solid #1e293b; padding: 1rem; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .status { color: var(--primary); font-size: 0.8rem; border: 1px solid var(--primary); padding: 2px 8px; border-radius: 10px; }
-        #loader { display: none; color: var(--primary); font-weight: bold; margin: 10px; }
+        body { background: #020617; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 50px; }
+        .btn { background: #38bdf8; color: #020617; padding: 15px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; border: none; }
+        .card { background: #0f172a; border: 1px solid #1e293b; padding: 20px; border-radius: 12px; margin: 10px; width: 100%; max-width: 600px; }
+        #status { margin: 20px; color: #38bdf8; font-weight: bold; }
     </style>
 </head>
 <body>
-
-    <div class="header">
-        <h1>🦅 RITT INTELLIGENCE</h1>
-        <p>Dashboard de Prospecção de Elite</p>
-    </div>
-
-    <button class="btn-run" onclick="minerar()">🚀 INICIAR MINERAÇÃO CAMBUÍ</button>
-    
-    <div id="loader">⚡ PROCESSANDO MOTOR NO GOOGLE MAPS...</div>
-
-    <div class="dashboard" id="lead-container">
-        </div>
+    <h1>🦅 RITT INTELLIGENCE</h1>
+    <button class="btn" onclick="minerar()">🚀 MINERAR AGORA</button>
+    <div id="status">Aguardando comando...</div>
+    <div id="leads"></div>
 
     <script>
-        // Função para buscar leads do banco
+        async function minerar() {
+            document.getElementById('status').innerText = "⚡ MOTOR EM OPERAÇÃO...";
+            try {
+                const res = await fetch('/api/minerar');
+                const data = await res.json();
+                if (data.status === "sucesso") {
+                    document.getElementById('status').innerText = "✅ SUCESSO: Leads salvos no banco!";
+                    carregarLeads();
+                } else {
+                    document.getElementById('status').innerText = "❌ ERRO: " + (data.detalhes || data.erro);
+                }
+            } catch (e) {
+                document.getElementById('status').innerText = "❌ FALHA NA CONEXÃO COM O SERVIDOR";
+            }
+        }
+
         async function carregarLeads() {
             try {
                 const res = await fetch('/api/leads');
-                if (!res.ok) throw new Error('API ainda não respondeu');
                 const leads = await res.json();
-                const container = document.getElementById('lead-container');
-                container.innerHTML = leads.length ? '' : '<p style="text-align:center; opacity:0.5;">Nenhum lead no banco ainda.</p>';
-
-                leads.reverse().forEach(lead => {
-                    container.innerHTML += `
-                        <div class="lead-card">
-                            <div>
-                                <strong style="color:#38bdf8">${lead.nome}</strong><br>
-                                <small>📍 ${lead.endereco}</small><br>
-                                <small>📞 ${lead.telefone || 'Sem Tel'}</small>
-                            </div>
-                            <div class="status">${lead.status}</div>
-                        </div>`;
-                });
-            } catch (err) { console.log("Aguardando conexão..."); }
+                const box = document.getElementById('leads');
+                box.innerHTML = leads.map(l => `
+                    <div class="card">
+                        <strong>${l.nome}</strong><br>
+                        <small>📍 ${l.endereco}</small>
+                    </div>
+                `).join('');
+            } catch (e) { console.error("Erro ao listar banco."); }
         }
-
-        // Função para disparar a mineração
-        async function minerar() {
-            const btn = document.querySelector('.btn-run');
-            const loader = document.getElementById('loader');
-            btn.disabled = true;
-            loader.style.display = 'block';
-
-            try {
-                await fetch('/api/minerar');
-                await carregarLeads();
-            } catch (err) { alert("Erro ao minerar. Verifique os logs da Vercel."); }
-
-            btn.disabled = false;
-            loader.style.display = 'none';
-        }
-
-        // Tenta carregar ao abrir
         carregarLeads();
-        // Atualiza a cada 10 segundos
-        setInterval(carregarLeads, 10000);
     </script>
 </body>
 </html>
