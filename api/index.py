@@ -3,61 +3,57 @@ import json
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from groq import Groq
-from supabase import create_client, Client
+from supabase import create_client
 
 app = Flask(__name__)
 CORS(app)
 
-# Configurações de Ambiente (Vercel)
+# Carregando chaves da Vercel
 GROQ_KEY = os.environ.get("GROQ_API_KEY")
-SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+S_URL = os.environ.get("SUPABASE_URL")
+S_KEY = os.environ.get("SUPABASE_KEY")
 
-# Inicialização das Ferramentas
-groq_client = Groq(api_key=GROQ_KEY)
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-@app.route('/')
-def home():
-    return "Motor RITT Inteligência - Glock & Supabase Ativos"
+# Inicializando clientes
+client_groq = Groq(api_key=GROQ_KEY)
+supabase = create_client(S_URL, S_KEY)
 
 @app.route('/api/analisar', methods=['POST'])
-def analisar_e_rastrear():
+def processar_maquina():
     data = request.json
-    url_cliente = data.get('url')
-
-    if not url_cliente:
-        return jsonify({"error": "Link não fornecido"}), 400
+    url_alvo = data.get('url')
+    
+    if not url_alvo:
+        return jsonify({"error": "Link ausente"}), 400
 
     try:
-        # 1. INTELIGÊNCIA: Glock analisa o site e define o alvo
-        analise_perfil = groq_client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": "Você é um Analista de Inteligência de Vendas. Identifique o produto e o perfil de cliente do site."},
-                {"role": "user", "content": f"Mapeie os setores deste link: {url_cliente}"}
-            ],
+        # 1. Inteligência de Campo (Glock analisa o site)
+        analise = client_groq.chat.completions.create(
+            messages=[{"role": "user", "content": f"Resuma em 10 palavras o que este site vende e qual o público: {url_alvo}"}],
             model="llama3-8b-8192",
         )
-        setor = analise_perfil.choices[0].message.content
+        setor_info = analise.choices[0].message.content
 
-        # 2. CAPTURA: Glock gera os leads assertivos em formato JSON para o sistema ler
-        gerar_leads = groq_client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": "Gere uma lista de 5 leads HIPER ASSERTIVOS em formato JSON puro. Use os campos: nome, telefone, prioridade, score, tatica."},
-                {"role": "user", "content": f"Baseado no setor {setor}, traga leads potenciais."}
-            ],
-            model="llama3-70b-8192",
-            response_format={"type": "json_object"} # Força a Glock a mandar JSON limpo
+        # 2. Mineração de Leads (Glock gera os dados em JSON)
+        prompt_leads = (
+            f"Gere um JSON com 3 leads fictícios mas altamente assertivos para o setor {setor_info}. "
+            "Formato: {'leads': [{'nome': '...', 'telefone': '...', 'prioridade': 'Alta', 'score': 10, 'tatica': '...'}]}"
         )
         
-        leads_json = json.loads(gerar_leads.choices[0].message.content)
-        leads_lista = leads_json.get("leads", [])
+        leads_raw = client_groq.chat.completions.create(
+            messages=[{"role": "system", "content": "Responda apenas com JSON puro."},
+                      {"role": "user", "content": prompt_leads}],
+            model="llama3-8b-8192",
+            response_format={"type": "json_object"}
+        )
+        
+        dados_json = json.loads(leads_raw.choices[0].message.content)
+        lista_leads = dados_json.get("leads", [])
 
-        # 3. O SALVE: Gravando na tabela fortificada do Supabase
-        for lead in leads_lista:
+        # 3. Registro no Supabase (O Salve do Ouro)
+        for lead in lista_leads:
             supabase.table("leads_hiper_assertivos").insert({
-                "empresa_origem": url_cliente,
-                "setor_identificado": setor[:200], # Limita o texto para não estourar
+                "empresa_origem": url_alvo,
+                "setor_identificado": setor_info[:150],
                 "nome_lead": lead.get("nome"),
                 "telefone": lead.get("telefone"),
                 "prioridade": lead.get("prioridade"),
@@ -66,14 +62,13 @@ def analisar_e_rastrear():
             }).execute()
 
         return jsonify({
-            "status": "Máquina Rodando",
-            "setor": setor,
-            "leads_capturados": len(leads_lista),
-            "dados": leads_lista
+            "status": "Finalizado", 
+            "leads_capturados": len(lista_leads),
+            "dados": lista_leads
         })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run()
