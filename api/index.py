@@ -18,24 +18,27 @@ def analisar():
         data = request.json
         url = data.get('url')
 
-        # COMANDO DE FERRO: LEITURA REAL E ENCAIXE DE INVENTÁRIO
-        prompt = (
-            f"COMANDO PRIORITÁRIO: Analise o inventário real do site {url}.\n"
-            "Se for imobiliária, extraia tipos de imóveis e bairros. Se for carros, marcas e modelos.\n"
-            "Gere 15 leads REAIS (5 A+, 5 B, 5 C) baseados no conteúdo DESTE SITE específico.\n"
-            "PROIBIDO: Não invente serviços de TI ou cargos genéricos se o site não for disso.\n"
-            "DETALHES OBRIGATÓRIOS:\n"
-            "1. PRODUTO: Cite um item específico que está no site (Ex: Casa no Gramado, Porsche 911).\n"
-            "2. SALÁRIO: A+ (>R$80k), B (R$15k-R$40k), C (R$5k-R$12k).\n"
-            "3. SOCIAL: Link real de busca no Instagram/LinkedIn.\n"
-            "4. DDD: Use o DDD 19 se o site for de Campinas.\n"
-            "Retorne APENAS JSON: {'leads': [{'nome': '...', 'cargo': '...', 'salario': '...', 'momento': '...', 'telefone': '...', 'classe': '...', 'produto': '...', 'social': '...', 'tatica': '...'}]}"
+        # PROTOCOLO DE DUAS ETAPAS: SCAN DE PRODUTO + CRUZAMENTO DE LEADS
+        prompt_operacional = (
+            f"DIRETRIZ OBRIGATÓRIA PARA O AGENTE:\n"
+            f"1. ACESSE O LINK: {url} e identifique EXATAMENTE o que é vendido (Imóveis, Carros, etc).\n"
+            f"2. MAPEIE O INVENTÁRIO: Liste mentalmente os 3 produtos mais caros, os médios e os de entrada.\n"
+            f"3. GERAÇÃO DE LEADS (30 LEADS): Gere 10 leads para cada classe (A+, B, C).\n\n"
+            "CRITÉRIOS DE ASSERTIVIDADE REAIS:\n"
+            "- LEADS CLASSE A+: Somente CEOs ou Médicos com renda > 80k para os produtos de luxo do site.\n"
+            "- LEADS CLASSE B: Profissionais liberais com renda 15k-35k para os produtos médios do site.\n"
+            "- LEADS CLASSE C: Assalariados ou autônomos com renda 5k-12k para os itens de entrada do site.\n\n"
+            "REGRAS DE OURO:\n"
+            "- Proibido oferecer algo que não tem no site (Ex: Se for site de casa, não ofereça carro).\n"
+            "- O campo 'PRODUTO' deve citar o nome/modelo/bairro real encontrado no link.\n"
+            "- O campo 'TATICA' deve ser um script de abordagem profissional, não um comentário pessoal.\n\n"
+            "Retorne JSON: {'leads': [{'nome': '...', 'cargo': '...', 'salario': '...', 'momento': '...', 'telefone': '...', 'classe': '...', 'produto': '...', 'social': '...', 'tatica': '...'}]}"
         )
 
         completion = client.chat.completions.create(
             messages=[
-                {"role": "system", "content": "Você é um Sniper de Vendas. Você nunca inventa dados genéricos. Você extrai o DNA do site e encontra o comprador exato para o que está na tela."},
-                {"role": "user", "content": prompt}
+                {"role": "system", "content": "Você é um Especialista em Inteligência de Inventário. Sua missão é ler o site e encontrar compradores reais para os produtos específicos que estão na vitrine."},
+                {"role": "user", "content": prompt_operacional}
             ],
             model="llama-3.1-8b-instant",
             response_format={"type": "json_object"}
@@ -43,7 +46,7 @@ def analisar():
         
         leads = json.loads(completion.choices[0].message.content).get("leads", [])
 
-        # Persistência
+        # Persistência no Supabase
         for l in leads:
             try:
                 supabase.table("leads_hiper_assertivos").insert({
@@ -51,7 +54,7 @@ def analisar():
                     "nome_lead": l.get("nome"),
                     "telefone": l.get("telefone"),
                     "classe_social": f"{l.get('classe')} ({l.get('salario')})",
-                    "produto_sugerido": f"{l.get('produto')} | {l.get('cargo')}",
+                    "produto_sugerido": l.get("produto"),
                     "estagio_compra": l.get("momento"),
                     "tatica_abordagem": l.get("social")
                 }).execute()
