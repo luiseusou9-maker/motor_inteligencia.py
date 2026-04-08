@@ -6,7 +6,7 @@
     <title>NEURAL COMMANDER | Operações de Elite</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
-        :root { --neon-green: #00ff41; --darker-bg: #050505; --card-bg: #0d0d0d; }
+        :root { --neon-green: #00ff41; --neon-yellow: #ffea00; --neon-orange: #ff4e00; --darker-bg: #050505; --card-bg: #0d0d0d; }
         body { background: var(--darker-bg); color: #ccc; font-family: 'Share Tech Mono', monospace; margin: 0; padding: 20px; }
         .container { max-width: 1100px; margin: auto; }
         h1 { font-family: 'Orbitron', sans-serif; color: var(--neon-green); text-shadow: 0 0 15px var(--neon-green); font-size: 2.5em; margin-bottom: 5px; }
@@ -22,12 +22,15 @@
         #resultados { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
         .card { background: var(--card-bg); border: 1px solid #222; padding: 20px; border-left: 4px solid var(--neon-green); position: relative; transition: 0.3s; }
         .card:hover { border-color: var(--neon-green); transform: translateY(-5px); }
-        .card h3 { color: #fff; margin-top: 0; font-family: 'Orbitron'; font-size: 1.2em; }
-        .badge { background: #1a1a1a; color: var(--neon-green); padding: 4px 8px; border: 1px solid var(--neon-green); font-size: 0.8em; border-radius: 3px; }
+        .card h3 { color: #fff; margin-top: 10px; font-family: 'Orbitron'; font-size: 1.2em; }
+        .badge { background: #1a1a1a; padding: 4px 8px; border: 1px solid var(--neon-green); font-size: 0.8em; border-radius: 3px; font-weight: bold; }
         .salary { color: #fff; font-weight: bold; }
-        .momento { color: var(--neon-green); font-weight: bold; text-transform: uppercase; font-size: 0.9em; }
+        .momento { font-weight: bold; text-transform: uppercase; font-size: 0.9em; }
         .label { color: #555; font-size: 0.8em; text-transform: uppercase; margin-bottom: 2px; }
         .data-field { margin-bottom: 12px; }
+        
+        .social-link { display: inline-block; margin-top: 5px; color: #00f3ff; text-decoration: none; border-bottom: 1px solid transparent; transition: 0.3s; }
+        .social-link:hover { border-color: #00f3ff; text-shadow: 0 0 5px #00f3ff; }
         
         .loading { display: none; color: var(--neon-green); font-size: 1.2em; margin-bottom: 20px; text-shadow: 0 0 5px var(--neon-green); }
     </style>
@@ -36,14 +39,14 @@
 
     <div class="container">
         <h1>NEURAL COMMANDER</h1>
-        <p class="subtitle">SISTEMA DE EXTRAÇÃO DE LEADS HIGH-TICKET</p>
+        <p class="subtitle">SISTEMA DE EXTRAÇÃO DE LEADS MULTICLASSE (A, B, C)</p>
         
         <div class="search-box">
-            <input type="text" id="urlInput" placeholder="DIGITE A URL DO ALVO PARA INFILTRAÇÃO...">
+            <input type="text" id="urlInput" placeholder="INFILTRAR EM: IMÓVEIS, CARROS, ESTÉTICA, LUXO...">
             <button onclick="executarVarredura()">VARREDURA</button>
         </div>
 
-        <div id="loader" class="loading">Iniciando protocolo de busca... Aguarde resposta do satélite...</div>
+        <div id="loader" class="loading">📡 CONECTANDO AO SATÉLITE... ANALISANDO DNA DO SITE...</div>
         <div id="resultados"></div>
     </div>
 
@@ -71,34 +74,42 @@
                     data.dados.forEach(lead => {
                         const card = document.createElement('div');
                         card.className = 'card';
+                        
+                        // Lógica de Cores Dinâmicas por Rank
+                        let corRank = 'var(--neon-green)';
+                        if (lead.classe.includes('B')) corRank = 'var(--neon-yellow)';
+                        if (lead.classe.includes('C')) corRank = 'var(--neon-orange)';
+                        
+                        card.style.borderLeftColor = corRank;
+
                         card.innerHTML = `
                             <div class="data-field">
-                                <span class="badge">RANK ${lead.classe}</span>
-                                <span style="margin-left:10px" class="salary">${lead.salario}</span>
+                                <span class="badge" style="border-color: ${corRank}; color: ${corRank}">RANK ${lead.classe}</span>
+                                <span style="margin-left:10px" class="salary">💰 ${lead.salario}</span>
                             </div>
                             <h3>${lead.nome}</h3>
                             <div class="data-field">
-                                <div class="label">Cargo & Atuação</div>
+                                <div class="label">Ocupação Principal</div>
                                 <div>${lead.cargo}</div>
                             </div>
                             <div class="data-field">
                                 <div class="label">Momento de Compra</div>
-                                <div class="momento">${lead.momento}</div>
+                                <div class="momento" style="color: ${lead.momento.includes('Pronto') ? 'var(--neon-green)' : 'var(--neon-yellow)'}">${lead.momento}</div>
                             </div>
                             <div class="data-field">
-                                <div class="label">Imóvel Sugerido</div>
-                                <div style="color:#fff">${lead.produto}</div>
+                                <div class="label">Produto Encaixado</div>
+                                <div style="color:#fff; font-weight:bold;">📦 ${lead.produto}</div>
                             </div>
                             <div class="data-field">
-                                <div class="label">Contato Direto</div>
-                                <div style="color:var(--neon-green)">${lead.telefone}</div>
+                                <div class="label">Contato & Social</div>
+                                <div style="color:var(--neon-green)">📱 ${lead.telefone}</div>
+                                <a href="${lead.social}" target="_blank" class="social-link">🔗 ANALISAR PERFIL SOCIAL</a>
                             </div>
                             <div class="data-field">
-                                <div class="label">Estratégia de Abordagem</div>
-                                <div style="font-size:0.9em">${lead.tatica}</div>
+                                <div class="label">Tática Recomendada</div>
+                                <div style="font-size:0.85em; color:#888;">${lead.tatica}</div>
                             </div>
                         `;
-                        // Adiciona no início da lista
                         resDiv.insertBefore(card, resDiv.firstChild);
                     });
                 }

@@ -8,7 +8,6 @@ from supabase import create_client
 app = Flask(__name__)
 CORS(app)
 
-# Inicialização direta
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 supabase = create_client(os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_KEY"))
 
@@ -19,29 +18,28 @@ def analisar():
         data = request.json
         url = data.get('url')
 
-        # PROMPT ÚNICO E AGRESSIVO: Foco em Riqueza e Imóveis do Site
+        # PROMPT EVOLUÍDO: IDENTIFICAÇÃO DE NICHO E SEGMENTAÇÃO A/B/C
         prompt = (
-            f"Analise o site {url}. Identifique os imóveis de luxo.\n"
-            "Gere 10 leads de CLASSE A+ (Donos de empresas, CEOs, Médicos).\n"
-            "REGRAS:\n"
-            "1. SALÁRIO: Acima de R$ 50.000,00.\n"
-            "2. PRODUTO: Vincule o lead a um imóvel específico do site.\n"
-            "3. DDD: Use 19 para Campinas ou a região do site.\n"
-            "4. Responda APENAS JSON:\n"
-            "{'leads': [{'nome': '...', 'cargo': '...', 'salario': '...', 'momento': '...', 'telefone': '...', 'classe': 'A+', 'produto': '...', 'tatica': '...'}]}"
+            f"Analise o site {url}. Identifique o NICHO (Ex: Carros, Imóveis, Estética) e os produtos.\n"
+            "Gere 15 leads REAIS e segmentados (5 A+, 5 B, 5 C).\n"
+            "REGRAS DE OURO:\n"
+            "1. ENCAIXE: Relacione o lead a um produto específico do site que caiba no bolso dele.\n"
+            "2. PERFIL SOCIAL: Gere links de busca (Instagram/LinkedIn) baseados no nome e cargo.\n"
+            "3. MOMENTO: Identifique quem está 'Pronto para comprar' ou 'Pesquisando'.\n"
+            "4. DDD: Regionalize conforme o site (Ex: 19 para Campinas).\n"
+            "Retorne APENAS JSON: {'leads': [{'nome': '...', 'cargo': '...', 'salario': '...', 'momento': '...', 'telefone': '...', 'classe': '...', 'produto': '...', 'social': '...', 'tatica': '...'}]}"
         )
 
-        # Usando o modelo mais rápido para GARANTIR que não dê Erro 500
         completion = client.chat.completions.create(
-            messages=[{"role": "system", "content": "Analista comercial de luxo. Responda apenas JSON."},
+            messages=[{"role": "system", "content": "Você é um Head de Vendas focado em análise de mercado e segmentação de renda. Responda apenas JSON."},
                       {"role": "user", "content": prompt}],
-            model="llama-3.1-8b-instant",
+            model="llama-3.1-8b-instant", # Estabilidade total
             response_format={"type": "json_object"}
         )
         
         leads = json.loads(completion.choices[0].message.content).get("leads", [])
 
-        # Registro no Banco
+        # Persistência no Supabase
         for l in leads:
             try:
                 supabase.table("leads_hiper_assertivos").insert({
@@ -51,7 +49,7 @@ def analisar():
                     "classe_social": f"{l.get('classe')} ({l.get('salario')})",
                     "produto_sugerido": f"{l.get('produto')} | {l.get('cargo')}",
                     "estagio_compra": l.get("momento"),
-                    "tatica_abordagem": l.get("tatica")
+                    "tatica_abordagem": l.get("social")
                 }).execute()
             except: pass
 
