@@ -3,49 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEURAL COMMANDER - Elite Leads</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <title>NEURAL COMMANDER | Operações de Elite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
-        :root { --neon-blue: #00f3ff; --neon-green: #00ff41; --dark-bg: #0a0a0a; }
-        body { background: var(--dark-bg); color: white; font-family: 'Roboto', sans-serif; margin: 0; padding: 20px; text-align: center; }
-        h1 { font-family: 'Orbitron', sans-serif; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
-        .container { max-width: 900px; margin: auto; background: #151515; padding: 30px; border-radius: 15px; border: 1px solid #333; }
-        input { width: 80%; padding: 15px; border-radius: 5px; border: 1px solid var(--neon-blue); background: #000; color: white; margin-bottom: 20px; font-size: 16px; }
-        button { background: var(--neon-blue); color: black; padding: 15px 30px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: 'Orbitron', sans-serif; transition: 0.3s; }
-        button:hover { background: var(--neon-green); box-shadow: 0 0 20px var(--neon-green); }
-        #resultados { margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; }
-        .card { background: #1a1a1a; padding: 20px; border-left: 5px solid var(--neon-blue); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .card h3 { margin-top: 0; color: var(--neon-blue); }
-        .status-badge { background: #333; padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
-        .momento-quente { color: var(--neon-green); border: 1px solid var(--neon-green); }
-        .loading { display: none; color: var(--neon-green); margin-top: 20px; font-family: 'Orbitron', sans-serif; animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
+        :root { --neon-green: #00ff41; --darker-bg: #050505; --card-bg: #0d0d0d; }
+        body { background: var(--darker-bg); color: #ccc; font-family: 'Share Tech Mono', monospace; margin: 0; padding: 20px; }
+        .container { max-width: 1100px; margin: auto; }
+        h1 { font-family: 'Orbitron', sans-serif; color: var(--neon-green); text-shadow: 0 0 15px var(--neon-green); font-size: 2.5em; margin-bottom: 5px; }
+        .subtitle { color: #666; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; }
+        
+        .search-box { background: var(--card-bg); padding: 30px; border: 1px solid #222; border-radius: 5px; margin-bottom: 40px; }
+        input { width: 70%; padding: 15px; background: #000; border: 1px solid #333; color: var(--neon-green); font-family: 'Share Tech Mono'; font-size: 1.1em; outline: none; }
+        input:focus { border-color: var(--neon-green); box-shadow: 0 0 10px rgba(0,255,65,0.2); }
+        
+        button { background: var(--neon-green); color: #000; padding: 15px 40px; border: none; font-family: 'Orbitron', sans-serif; font-weight: bold; cursor: pointer; transition: 0.3s; margin-left: 10px; }
+        button:hover { background: #fff; box-shadow: 0 0 20px var(--neon-green); }
+
+        #resultados { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .card { background: var(--card-bg); border: 1px solid #222; padding: 20px; border-left: 4px solid var(--neon-green); position: relative; transition: 0.3s; }
+        .card:hover { border-color: var(--neon-green); transform: translateY(-5px); }
+        .card h3 { color: #fff; margin-top: 0; font-family: 'Orbitron'; font-size: 1.2em; }
+        .badge { background: #1a1a1a; color: var(--neon-green); padding: 4px 8px; border: 1px solid var(--neon-green); font-size: 0.8em; border-radius: 3px; }
+        .salary { color: #fff; font-weight: bold; }
+        .momento { color: var(--neon-green); font-weight: bold; text-transform: uppercase; font-size: 0.9em; }
+        .label { color: #555; font-size: 0.8em; text-transform: uppercase; margin-bottom: 2px; }
+        .data-field { margin-bottom: 12px; }
+        
+        .loading { display: none; color: var(--neon-green); font-size: 1.2em; margin-bottom: 20px; text-shadow: 0 0 5px var(--neon-green); }
     </style>
 </head>
 <body>
 
     <div class="container">
         <h1>NEURAL COMMANDER</h1>
-        <p>Infiltrando dados e extraindo leads de alta conversão.</p>
+        <p class="subtitle">SISTEMA DE EXTRAÇÃO DE LEADS HIGH-TICKET</p>
         
-        <input type="text" id="urlInput" placeholder="Cole a URL do alvo (ex: https://hitimoveis.com.br)">
-        <br>
-        <button onclick="dispararMotor()">⚡ EXECUTAR VARREDURA</button>
+        <div class="search-box">
+            <input type="text" id="urlInput" placeholder="DIGITE A URL DO ALVO PARA INFILTRAÇÃO...">
+            <button onclick="executarVarredura()">VARREDURA</button>
+        </div>
 
-        <div id="loading" class="loading">🛰️ ANALISANDO DNA DO SITE E RASTREANDO TUBARÕES...</div>
-
+        <div id="loader" class="loading">Iniciando protocolo de busca... Aguarde resposta do satélite...</div>
         <div id="resultados"></div>
     </div>
 
     <script>
-        async function dispararMotor() {
+        async function executarVarredura() {
             const url = document.getElementById('urlInput').value;
             const resDiv = document.getElementById('resultados');
-            const loader = document.getElementById('loading');
+            const loader = document.getElementById('loader');
 
-            if (!url) return alert("Comandante, insira uma URL válida!");
+            if (!url) return alert("Comandante, forneça uma URL!");
 
-            resDiv.innerHTML = '';
             loader.style.display = 'block';
 
             try {
@@ -63,20 +72,39 @@
                         const card = document.createElement('div');
                         card.className = 'card';
                         card.innerHTML = `
-                            <h3>👤 ${lead.nome}</h3>
-                            <p><span class="status-badge">Rank ${lead.classe}</span> | 💰 ${lead.salario}</p>
-                            <p><strong>💼 Cargo:</strong> ${lead.cargo}</p>
-                            <p><strong>🔥 Momento:</strong> <span class="momento-quente">${lead.momento}</span></p>
-                            <p><strong>🎯 Alvo:</strong> ${lead.produto}</p>
-                            <p><strong>📱 TEL:</strong> ${lead.telefone}</p>
-                            <p><strong>💡 Tática:</strong> ${lead.tatica}</p>
+                            <div class="data-field">
+                                <span class="badge">RANK ${lead.classe}</span>
+                                <span style="margin-left:10px" class="salary">${lead.salario}</span>
+                            </div>
+                            <h3>${lead.nome}</h3>
+                            <div class="data-field">
+                                <div class="label">Cargo & Atuação</div>
+                                <div>${lead.cargo}</div>
+                            </div>
+                            <div class="data-field">
+                                <div class="label">Momento de Compra</div>
+                                <div class="momento">${lead.momento}</div>
+                            </div>
+                            <div class="data-field">
+                                <div class="label">Imóvel Sugerido</div>
+                                <div style="color:#fff">${lead.produto}</div>
+                            </div>
+                            <div class="data-field">
+                                <div class="label">Contato Direto</div>
+                                <div style="color:var(--neon-green)">${lead.telefone}</div>
+                            </div>
+                            <div class="data-field">
+                                <div class="label">Estratégia de Abordagem</div>
+                                <div style="font-size:0.9em">${lead.tatica}</div>
+                            </div>
                         `;
-                        resDiv.appendChild(card);
+                        // Adiciona no início da lista
+                        resDiv.insertBefore(card, resDiv.firstChild);
                     });
                 }
             } catch (err) {
                 loader.style.display = 'none';
-                alert("Erro na infiltração: " + err);
+                alert("Falha na varredura: " + err);
             }
         }
     </script>
