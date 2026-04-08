@@ -18,28 +18,32 @@ def analisar():
         data = request.json
         url = data.get('url')
 
-        # PROMPT EVOLUÍDO: IDENTIFICAÇÃO DE NICHO E SEGMENTAÇÃO A/B/C
+        # COMANDO DE FERRO: LEITURA REAL E ENCAIXE DE INVENTÁRIO
         prompt = (
-            f"Analise o site {url}. Identifique o NICHO (Ex: Carros, Imóveis, Estética) e os produtos.\n"
-            "Gere 15 leads REAIS e segmentados (5 A+, 5 B, 5 C).\n"
-            "REGRAS DE OURO:\n"
-            "1. ENCAIXE: Relacione o lead a um produto específico do site que caiba no bolso dele.\n"
-            "2. PERFIL SOCIAL: Gere links de busca (Instagram/LinkedIn) baseados no nome e cargo.\n"
-            "3. MOMENTO: Identifique quem está 'Pronto para comprar' ou 'Pesquisando'.\n"
-            "4. DDD: Regionalize conforme o site (Ex: 19 para Campinas).\n"
+            f"COMANDO PRIORITÁRIO: Analise o inventário real do site {url}.\n"
+            "Se for imobiliária, extraia tipos de imóveis e bairros. Se for carros, marcas e modelos.\n"
+            "Gere 15 leads REAIS (5 A+, 5 B, 5 C) baseados no conteúdo DESTE SITE específico.\n"
+            "PROIBIDO: Não invente serviços de TI ou cargos genéricos se o site não for disso.\n"
+            "DETALHES OBRIGATÓRIOS:\n"
+            "1. PRODUTO: Cite um item específico que está no site (Ex: Casa no Gramado, Porsche 911).\n"
+            "2. SALÁRIO: A+ (>R$80k), B (R$15k-R$40k), C (R$5k-R$12k).\n"
+            "3. SOCIAL: Link real de busca no Instagram/LinkedIn.\n"
+            "4. DDD: Use o DDD 19 se o site for de Campinas.\n"
             "Retorne APENAS JSON: {'leads': [{'nome': '...', 'cargo': '...', 'salario': '...', 'momento': '...', 'telefone': '...', 'classe': '...', 'produto': '...', 'social': '...', 'tatica': '...'}]}"
         )
 
         completion = client.chat.completions.create(
-            messages=[{"role": "system", "content": "Você é um Head de Vendas focado em análise de mercado e segmentação de renda. Responda apenas JSON."},
-                      {"role": "user", "content": prompt}],
-            model="llama-3.1-8b-instant", # Estabilidade total
+            messages=[
+                {"role": "system", "content": "Você é um Sniper de Vendas. Você nunca inventa dados genéricos. Você extrai o DNA do site e encontra o comprador exato para o que está na tela."},
+                {"role": "user", "content": prompt}
+            ],
+            model="llama-3.1-8b-instant",
             response_format={"type": "json_object"}
         )
         
         leads = json.loads(completion.choices[0].message.content).get("leads", [])
 
-        # Persistência no Supabase
+        # Persistência
         for l in leads:
             try:
                 supabase.table("leads_hiper_assertivos").insert({
