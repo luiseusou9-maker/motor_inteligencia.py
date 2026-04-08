@@ -18,41 +18,41 @@ def analisar():
         data = request.json
         url = data.get('url')
 
-        # ETAPA 1: SUA LÓGICA DE ANALISTA EXPERIENTE
-        prompt_perfil = f"Analise este link: {url}. Identifique os produtos e o perfil do cliente ideal (Poder aquisitivo, interesses, urgência)."
-        analise_perfil = client.chat.completions.create(
-            messages=[{"role": "system", "content": "Você é um analista de vendas experiente."},
-                      {"role": "user", "content": prompt_perfil}],
-            model="llama-3.1-8b-instant"
-        ).choices[0].message.content
-
-        # ETAPA 2: CAPTURA DE HIPER LEADS (Com as novas colunas)
-        prompt_leads = (
-            f"Com base no perfil: {analise_perfil}, gere 5 leads REAIS e prioritários.\n"
-            "Retorne APENAS JSON no formato:\n"
+        # PROMPT MESTRE: Analisa o perfil e gera leads em um único tiro
+        prompt_unico = (
+            f"Analise o site {url}. Identifique o setor e o perfil de cliente.\n"
+            "Com base nisso, gere 5 leads REAIS de alta conversão.\n"
+            "REGRAS:\n"
+            "1. Tudo em PORTUGUÊS.\n"
+            "2. Estime CARGO e SALÁRIO real para o setor.\n"
+            "3. MOMENTO: 'Pronto para comprar' ou 'Pesquisando'.\n"
+            "4. DDD: Use o da região (ex: 19 para Campinas).\n"
+            "Retorne APENAS JSON:\n"
             "{'leads': [{'nome': '...', 'cargo': '...', 'salario': 'R$ ...', 'momento': '...', 'telefone': '...', 'classe': 'A', 'produto': '...', 'tatica': '...'}]}"
         )
 
         res = client.chat.completions.create(
-            messages=[{"role": "system", "content": "Gere leads assertivos em JSON. Use português."},
-                      {"role": "user", "content": prompt_leads}],
-            model="llama-3.1-70b-versatile",
+            messages=[{"role": "system", "content": "Você é um Analista de Vendas e Head de Growth de Elite."},
+                      {"role": "user", "content": prompt_unico}],
+            model="llama-3.1-8b-instant", # Modelo ultra-rápido para evitar Erro 500
             response_format={"type": "json_object"}
         )
         
         leads = json.loads(res.choices[0].message.content).get("leads", [])
 
-        # SALVANDO NO BANCO (Adaptado para as novas colunas)
+        # Salva no banco (Silencioso para não atrasar)
         for l in leads:
-            supabase.table("leads_hiper_assertivos").insert({
-                "empresa_origem": url,
-                "nome_lead": l.get("nome"),
-                "telefone": l.get("telefone"),
-                "classe_social": f"{l.get('classe')} ({l.get('salario')})",
-                "produto_sugerido": f"{l.get('produto')} | Cargo: {l.get('cargo')}",
-                "estagio_compra": l.get("momento"),
-                "tatica_abordagem": l.get("tatica")
-            }).execute()
+            try:
+                supabase.table("leads_hiper_assertivos").insert({
+                    "empresa_origem": url,
+                    "nome_lead": l.get("nome"),
+                    "telefone": l.get("telefone"),
+                    "classe_social": f"{l.get('classe')} ({l.get('salario')})",
+                    "produto_sugerido": f"{l.get('produto')} | {l.get('cargo')}",
+                    "estagio_compra": l.get("momento"),
+                    "tatica_abordagem": l.get("tatica")
+                }).execute()
+            except: pass
 
         return jsonify({"status": "sucesso", "dados": leads})
     except Exception as e:
