@@ -6,81 +6,74 @@
     <title>RITT Intelligence | Dashboard</title>
     <style>
         :root { --primary: #38bdf8; --bg: #020617; --card: #0f172a; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: white; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        
-        .header { text-align: center; padding: 3rem 1rem; width: 100%; background: linear-gradient(to bottom, #0f172a, var(--bg)); border-bottom: 1px solid #1e293b; }
-        .header h1 { margin: 0; font-size: 2.5rem; letter-spacing: 2px; color: var(--primary); text-shadow: 0 0 20px rgba(56, 189, 248, 0.4); }
-        .header p { opacity: 0.7; font-size: 1.1rem; margin-top: 10px; }
-
-        .controls { margin: 2rem 0; }
-        .btn-run { background: var(--primary); color: var(--bg); border: none; padding: 12px 30px; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 1rem; transition: 0.3s; text-transform: uppercase; box-shadow: 0 0 15px rgba(56, 189, 248, 0.5); }
+        body { font-family: sans-serif; background: var(--bg); color: white; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .header { text-align: center; padding: 2rem; border-bottom: 1px solid #1e293b; width: 100%; }
+        .btn-run { background: var(--primary); color: var(--bg); border: none; padding: 15px 30px; font-weight: bold; border-radius: 8px; cursor: pointer; margin: 20px; transition: 0.3s; }
         .btn-run:hover { transform: scale(1.05); filter: brightness(1.2); }
-
-        .dashboard { width: 90%; max-width: 1000px; display: grid; gap: 1.5rem; padding-bottom: 50px; }
-        .lead-card { background: var(--card); border: 1px solid #1e293b; padding: 1.5rem; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
-        .lead-card:hover { border-color: var(--primary); background: #131e36; }
-        .lead-info h3 { margin: 0; color: var(--primary); }
-        .lead-info p { margin: 5px 0 0; opacity: 0.8; font-size: 0.9rem; }
-        .status-badge { background: rgba(56, 189, 248, 0.1); color: var(--primary); padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; border: 1px solid var(--primary); }
-        
-        #loader { display: none; margin: 20px; color: var(--primary); font-weight: bold; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        .dashboard { width: 90%; max-width: 800px; margin-top: 20px; }
+        .lead-card { background: var(--card); border: 1px solid #1e293b; padding: 1rem; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .status { color: var(--primary); font-size: 0.8rem; border: 1px solid var(--primary); padding: 2px 8px; border-radius: 10px; }
+        #loader { display: none; color: var(--primary); font-weight: bold; margin: 10px; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1>🦅 RITT INTELLIGENCE</h1>
-        <p>Sistema de Prospecção de Elite | Cambuí - Campinas</p>
+        <p>Dashboard de Prospecção de Elite</p>
     </div>
 
-    <div class="controls">
-        <button class="btn-run" onclick="minerar()">🚀 Iniciar Mineração de Leads</button>
-    </div>
-
-    <div id="loader">MOTOR EM OPERAÇÃO: ACESSANDO GOOGLE MAPS...</div>
+    <button class="btn-run" onclick="minerar()">🚀 INICIAR MINERAÇÃO CAMBUÍ</button>
+    
+    <div id="loader">⚡ PROCESSANDO MOTOR NO GOOGLE MAPS...</div>
 
     <div class="dashboard" id="lead-container">
         </div>
 
     <script>
-        const API_URL = 'https://motor-inteligencia-py.vercel.app/api';
-
+        // Função para buscar leads do banco
         async function carregarLeads() {
             try {
-                const res = await fetch(`${API_URL}/leads`);
+                const res = await fetch('/api/leads');
+                if (!res.ok) throw new Error('API ainda não respondeu');
                 const leads = await res.json();
                 const container = document.getElementById('lead-container');
-                container.innerHTML = '';
+                container.innerHTML = leads.length ? '' : '<p style="text-align:center; opacity:0.5;">Nenhum lead no banco ainda.</p>';
 
                 leads.reverse().forEach(lead => {
                     container.innerHTML += `
                         <div class="lead-card">
-                            <div class="lead-info">
-                                <h3>${lead.nome}</h3>
-                                <p>📍 ${lead.endereco}</p>
-                                <p>📞 ${lead.telefone || 'Não informado'}</p>
+                            <div>
+                                <strong style="color:#38bdf8">${lead.nome}</strong><br>
+                                <small>📍 ${lead.endereco}</small><br>
+                                <small>📞 ${lead.telefone || 'Sem Tel'}</small>
                             </div>
-                            <div class="status-badge">${lead.status || 'Pendente'}</div>
-                        </div>
-                    `;
+                            <div class="status">${lead.status}</div>
+                        </div>`;
                 });
-            } catch (err) { console.error("Erro ao carregar banco:", err); }
+            } catch (err) { console.log("Aguardando conexão..."); }
         }
 
+        // Função para disparar a mineração
         async function minerar() {
-            document.getElementById('loader').style.display = 'block';
+            const btn = document.querySelector('.btn-run');
+            const loader = document.getElementById('loader');
+            btn.disabled = true;
+            loader.style.display = 'block';
+
             try {
-                await fetch(`${API_URL}/minerar`);
-                await carregarLeads(); // Recarrega a lista após minerar
-            } catch (err) {
-                alert("Erro na mineração. Verifique a API.");
-            }
-            document.getElementById('loader').style.display = 'none';
+                await fetch('/api/minerar');
+                await carregarLeads();
+            } catch (err) { alert("Erro ao minerar. Verifique os logs da Vercel."); }
+
+            btn.disabled = false;
+            loader.style.display = 'none';
         }
 
-        // Carrega os dados assim que abrir a página
+        // Tenta carregar ao abrir
         carregarLeads();
+        // Atualiza a cada 10 segundos
+        setInterval(carregarLeads, 10000);
     </script>
 </body>
 </html>
