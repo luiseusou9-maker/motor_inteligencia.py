@@ -4,12 +4,15 @@
     {
       "src": "api/index.py",
       "use": "@vercel/python"
+    },
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/api/analisar",
-      "methods": ["POST", "OPTIONS"],
       "dest": "api/index.py"
     },
     {
