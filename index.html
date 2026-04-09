@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>NEURAL COMMANDER v4.6 - DEEP SCAN CATÁLOGO</title>
+    <title>NEURAL COMMANDER v4.8 - INTELIGÊNCIA GLOBAL</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root { --a: #00f3ff; --b: #00ff41; --c: #ffae00; --d: #ff4e00; --bg: #050505; }
@@ -17,22 +17,23 @@
         .rank-tag { position: absolute; top: 15px; right: 15px; font-weight: bold; border: 1px solid; padding: 3px 10px; font-size: 0.8em; }
         .label { color: #555; font-size: 0.6em; text-transform: uppercase; margin-top: 10px; letter-spacing: 1px; }
         .val { color: #fff; font-size: 1em; }
-        .match-box { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 15px; margin-top: 15px; border-radius: 4px; }
-        .score { color: var(--b); font-weight: bold; font-size: 0.8em; margin-top: 5px; }
-        .social-btn { display: block; background: #222; color: #fff; text-decoration: none; text-align: center; padding: 10px; margin-top: 15px; font-family: 'Orbitron'; font-size: 0.75em; border-radius: 2px; }
+        .match-box { background: rgba(0,243,255,0.03); border: 1px solid #333; padding: 15px; margin-top: 15px; border-radius: 4px; }
+        .score { color: var(--a); font-weight: bold; font-size: 0.8em; }
+        .social-btn { display: block; background: #222; color: #fff; text-decoration: none; text-align: center; padding: 10px; margin-top: 15px; font-family: 'Orbitron'; font-size: 0.75em; border-radius: 2px; border: 1px solid #333; }
+        .social-btn:hover { background: var(--a); color: #000; border-color: var(--a); }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>NEURAL COMMANDER v4.6</h1>
-        <div style="text-align:center; color:var(--a); font-size:0.75em; margin-top:5px; font-family:'Orbitron';">AUDITORIA DE CATÁLOGO COMPLETO E MULTI-MATCH</div>
+        <h1>NEURAL COMMANDER v4.8</h1>
+        <div style="text-align:center; color:var(--a); font-size:0.7em; margin-top:5px; font-family:'Orbitron';">SISTEMA DE AUDITORIA E CAÇA AO LEAD GLOBAL</div>
         
         <div class="search-box">
-            <input type="text" id="urlInput" placeholder="URL DA IMOBILIÁRIA (CAMPINAS E REGIÃO)...">
-            <button onclick="executar()">SCAN TOTAL</button>
+            <input type="text" id="urlInput" placeholder="URL DA IMOBILIÁRIA (AUDITORIA DE CATÁLOGO)...">
+            <button onclick="executar()">RASTREAR LEADS</button>
         </div>
 
-        <div id="loader" style="display:none; text-align:center; color:var(--b); padding: 40px;">📡 AGENTE EM CAMPO: VARRENDO 200+ PRODUTOS E MAPEANDO COMPRADORES ATIVOS...</div>
+        <div id="loader" style="display:none; text-align:center; color:var(--b); padding: 40px;">📡 AGENTE INFILTRADO: ANALISANDO CATÁLOGO E LOCALIZANDO DONOS DO DINHEIRO...</div>
         <div id="resultados"></div>
     </div>
 
@@ -65,12 +66,12 @@
                     card.style.borderLeftColor = cor;
                     card.innerHTML = `
                         <span class="rank-tag" style="color:${cor}; border-color:${cor}">${classe}</span>
-                        <div class="label">LEAD COMPETIDOR</div>
+                        <div class="label">NOME DO COMPRADOR</div>
                         <div class="val" style="font-weight:bold;">${l.nome}</div>
                         
                         <div style="display:flex; justify-content:space-between; gap:10px;">
                             <div>
-                                <div class="label">MORADIA ATUAL</div>
+                                <div class="label">ORIGEM (RESIDÊNCIA)</div>
                                 <div class="val" style="font-size:0.85em;">📍 ${l.reside_atualmente}</div>
                             </div>
                             <div style="text-align:right;">
@@ -81,20 +82,22 @@
                         </div>
 
                         <div class="match-box">
-                            <div class="label" style="margin:0; color:${cor}">🎯 PRODUTO DO CATÁLOGO</div>
-                            <div class="val" style="font-weight:bold; font-size:0.85em;">${l.produto_alvo}</div>
-                            <div class="label" style="margin-top:8px;">ENDEREÇO DO IMÓVEL</div>
-                            <div class="val" style="font-size:0.85em; color:var(--a);">${l.endereco_imovel}</div>
-                            <div class="score">MATCH SCORE: ${l.match_score || '95%'}</div>
+                            <div class="label" style="margin:0; color:var(--a)">🎯 PRODUTO IDENTIFICADO NO SITE</div>
+                            <div class="val" style="font-weight:bold; font-size:0.9em;">${l.produto_alvo}</div>
+                            <div class="label" style="margin-top:8px;">LOCAL DO IMÓVEL</div>
+                            <div class="val" style="font-size:0.85em; color:#fff;">${l.endereco_imovel}</div>
+                            <div class="label" style="margin-top:8px;">COMPORTAMENTO/INTERESSE</div>
+                            <div class="val" style="font-size:0.75em; color:#888;">${l.perfil_comportamental}</div>
+                            <div class="score">CONFIANÇA DO MATCH: ${l.match_score}</div>
                         </div>
 
-                        <div class="label">WHATSAPP VALIDADO</div>
+                        <div class="label">CONTATO DIRETO</div>
                         <div class="val" style="color:${cor}; font-weight:bold; font-size:1.1em;">${l.telefone}</div>
-                        <a href="https://www.google.com/search?q=linkedin+${l.nome}" target="_blank" class="social-btn">SCAN SOCIAL</a>
+                        <a href="https://www.google.com/search?q=linkedin+${l.nome}" target="_blank" class="social-btn">VALIDAR PERFIL SOCIAL</a>
                     `;
                     resDiv.appendChild(card);
                 });
-            } catch (e) { loader.style.display = 'none'; alert("Erro no scanner."); }
+            } catch (e) { loader.style.display = 'none'; alert("Erro na varredura."); }
         }
     </script>
 </body>
