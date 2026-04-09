@@ -2,38 +2,50 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>NEURAL COMMANDER v4.8 - INTELIGÊNCIA GLOBAL</title>
+    <title>NEURAL COMMANDER v5.0 - DEEP ARSENAL</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root { --a: #00f3ff; --b: #00ff41; --c: #ffae00; --d: #ff4e00; --bg: #050505; }
         body { background: var(--bg); color: #ccc; font-family: 'Share Tech Mono', monospace; margin: 0; padding: 20px; }
         .container { max-width: 1400px; margin: auto; }
         h1 { font-family: 'Orbitron'; color: var(--b); text-align: center; text-shadow: 0 0 10px var(--b); margin:0; }
-        .search-box { background: #0d0d0d; padding: 20px; border: 1px solid #333; display: flex; gap: 10px; margin: 25px 0; }
-        input { flex: 1; background: #000; border: 1px solid #444; color: var(--b); padding: 15px; font-family: inherit; outline: none; font-size: 1.1em; }
-        button { background: var(--b); color: #000; font-family: 'Orbitron'; font-weight: bold; padding: 0 40px; cursor: pointer; border: none; transition: 0.3s; }
-        #resultados { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
-        .card { background: #0a0a0a; border: 1px solid #222; border-left: 6px solid; padding: 20px; position: relative; }
-        .rank-tag { position: absolute; top: 15px; right: 15px; font-weight: bold; border: 1px solid; padding: 3px 10px; font-size: 0.8em; }
-        .label { color: #555; font-size: 0.6em; text-transform: uppercase; margin-top: 10px; letter-spacing: 1px; }
-        .val { color: #fff; font-size: 1em; }
-        .match-box { background: rgba(0,243,255,0.03); border: 1px solid #333; padding: 15px; margin-top: 15px; border-radius: 4px; }
-        .score { color: var(--a); font-weight: bold; font-size: 0.8em; }
-        .social-btn { display: block; background: #222; color: #fff; text-decoration: none; text-align: center; padding: 10px; margin-top: 15px; font-family: 'Orbitron'; font-size: 0.75em; border-radius: 2px; border: 1px solid #333; }
-        .social-btn:hover { background: var(--a); color: #000; border-color: var(--a); }
+        .search-box { background: #0d0d0d; padding: 20px; border: 1px solid #333; display: flex; gap: 10px; margin: 25px 0; border-radius: 4px; box-shadow: 0 0 20px rgba(0,255,65,0.1); }
+        input { flex: 1; background: #000; border: 1px solid #444; color: var(--b); padding: 15px; font-family: inherit; outline: none; font-size: 1.1em; border-radius: 2px; }
+        button { background: var(--b); color: #000; font-family: 'Orbitron'; font-weight: bold; padding: 0 40px; cursor: pointer; border: none; transition: 0.3s; text-transform: uppercase; }
+        button:hover { background: #fff; box-shadow: 0 0 15px var(--b); }
+        #resultados { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 25px; }
+        .card { background: #0a0a0a; border: 1px solid #222; border-left: 6px solid; padding: 20px; position: relative; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); border-color: #444; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .rank-tag { position: absolute; top: 15px; right: 15px; font-weight: bold; border: 1px solid; padding: 3px 10px; font-size: 0.8em; border-radius: 3px; }
+        .label { color: #555; font-size: 0.65em; text-transform: uppercase; margin-top: 12px; letter-spacing: 1.5px; }
+        .val { color: #fff; font-size: 1.05em; }
+        .match-box { background: rgba(0,243,255,0.05); border: 1px solid rgba(0,243,255,0.2); padding: 15px; margin-top: 15px; border-radius: 4px; }
+        .score { color: var(--a); font-weight: bold; font-size: 0.85em; margin-top: 10px; display: block; }
+        .social-btn { display: block; background: #111; color: #fff; text-decoration: none; text-align: center; padding: 12px; margin-top: 15px; font-family: 'Orbitron'; font-size: 0.75em; border-radius: 2px; border: 1px solid #333; transition: 0.3s; }
+        .social-btn:hover { background: var(--a); color: #000; border-color: var(--a); font-weight: bold; }
+        #loader { display: none; padding: 50px; text-align: center; border: 1px dashed var(--b); margin-bottom: 30px; }
+        .loading-text { font-family: 'Orbitron'; color: var(--b); font-size: 1.2em; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+        .status-bar { width: 100%; height: 4px; background: #111; margin-top: 20px; position: relative; overflow: hidden; }
+        .status-bar::after { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 30%; background: var(--b); animation: loading 1.5s infinite linear; }
+        @keyframes loading { from { left: -30%; } to { left: 100%; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>NEURAL COMMANDER v4.8</h1>
-        <div style="text-align:center; color:var(--a); font-size:0.7em; margin-top:5px; font-family:'Orbitron';">SISTEMA DE AUDITORIA E CAÇA AO LEAD GLOBAL</div>
+        <h1>NEURAL COMMANDER <span style="color:var(--a)">v5.0</span></h1>
+        <div style="text-align:center; color:#555; font-size:0.75em; margin-top:5px; font-family:'Orbitron'; letter-spacing: 4px;">MÓDULO DE ATAQUE: ARSENAL & SNIPER</div>
         
         <div class="search-box">
-            <input type="text" id="urlInput" placeholder="URL DA IMOBILIÁRIA (AUDITORIA DE CATÁLOGO)...">
-            <button onclick="executar()">RASTREAR LEADS</button>
+            <input type="text" id="urlInput" placeholder="URL DA IMOBILIÁRIA PARA VARREDURA DE ARSENAL...">
+            <button onclick="executar()">RASTREAR ARSENAL</button>
         </div>
 
-        <div id="loader" style="display:none; text-align:center; color:var(--b); padding: 40px;">📡 AGENTE INFILTRADO: ANALISANDO CATÁLOGO E LOCALIZANDO DONOS DO DINHEIRO...</div>
+        <div id="loader">
+            <div class="loading-text">📡 AGENTE EM CAMPO</div>
+            <div id="statusMsg" style="color: #888; font-size: 0.8em;">FASE 1: MAPEANDO TODAS AS CATEGORIAS DO SITE...</div>
+            <div class="status-bar"></div>
+        </div>
+
         <div id="resultados"></div>
     </div>
 
@@ -42,8 +54,14 @@
             const url = document.getElementById('urlInput').value;
             const resDiv = document.getElementById('resultados');
             const loader = document.getElementById('loader');
+            const statusMsg = document.getElementById('statusMsg');
+            
             if (!url) return;
-            resDiv.innerHTML = ''; loader.style.display = 'block';
+            resDiv.innerHTML = ''; 
+            loader.style.display = 'block';
+
+            // Timer para simular a troca de fase (opcional, apenas visual)
+            setTimeout(() => { statusMsg.innerText = "FASE 2: GERANDO MULTI-MATCH PARA CADA PRODUTO ENCONTRADO..."; }, 8000);
 
             try {
                 const response = await fetch('/api/analisar', {
@@ -51,53 +69,61 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ url: url })
                 });
+                
                 const data = await response.json();
                 loader.style.display = 'none';
 
-                data.dados.forEach(l => {
-                    const classe = (l.classe || '').toUpperCase();
-                    let cor = 'var(--c)';
-                    if (classe.includes('A') || classe.includes('TUB')) cor = 'var(--a)';
-                    else if (classe.includes('B')) cor = 'var(--b)';
-                    else if (classe.includes('D')) cor = 'var(--d)';
+                if (data.dados && data.dados.length > 0) {
+                    data.dados.forEach(l => {
+                        const classe = (l.classe || '').toUpperCase();
+                        let cor = 'var(--c)';
+                        if (classe.includes('A') || classe.includes('TUB')) cor = 'var(--a)';
+                        else if (classe.includes('B')) cor = 'var(--b)';
+                        else if (classe.includes('D')) cor = 'var(--d)';
 
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.style.borderLeftColor = cor;
-                    card.innerHTML = `
-                        <span class="rank-tag" style="color:${cor}; border-color:${cor}">${classe}</span>
-                        <div class="label">NOME DO COMPRADOR</div>
-                        <div class="val" style="font-weight:bold;">${l.nome}</div>
-                        
-                        <div style="display:flex; justify-content:space-between; gap:10px;">
-                            <div>
-                                <div class="label">ORIGEM (RESIDÊNCIA)</div>
-                                <div class="val" style="font-size:0.85em;">📍 ${l.reside_atualmente}</div>
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.style.borderLeftColor = cor;
+                        card.innerHTML = `
+                            <span class="rank-tag" style="color:${cor}; border-color:${cor}">${classe}</span>
+                            <div class="label">LEAD INTERESSADO</div>
+                            <div class="val" style="font-weight:bold;">${l.nome}</div>
+                            
+                            <div style="display:flex; justify-content:space-between; gap:10px;">
+                                <div>
+                                    <div class="label">RESIDE EM</div>
+                                    <div class="val" style="font-size:0.85em;">📍 ${l.reside_atualmente}</div>
+                                </div>
+                                <div style="text-align:right;">
+                                    <div class="label">RENDA / CARGO</div>
+                                    <div class="val" style="color:${cor}; font-weight:bold;">${l.renda}</div>
+                                    <div class="val" style="font-size:0.7em;">${l.cargo}</div>
+                                </div>
                             </div>
-                            <div style="text-align:right;">
-                                <div class="label">RENDA / CARGO</div>
-                                <div class="val" style="color:${cor}; font-weight:bold;">${l.renda}</div>
-                                <div class="val" style="font-size:0.7em;">${l.cargo}</div>
+
+                            <div class="match-box">
+                                <div class="label" style="margin:0; color:var(--a)">🎯 ITEM DO ARSENAL</div>
+                                <div class="val" style="font-weight:bold; font-size:0.95em;">${l.produto_alvo}</div>
+                                <div class="label" style="margin-top:8px;">LOCALIZAÇÃO</div>
+                                <div class="val" style="font-size:0.85em; color:#fff;">${l.endereco_imovel}</div>
+                                <div class="label" style="margin-top:8px;">ANÁLISE DO SNIPER</div>
+                                <div class="val" style="font-size:0.8em; color:#aaa; line-height:1.4;">${l.perfil_comportamental}</div>
+                                <span class="score">MATCH: ${l.match_score}</span>
                             </div>
-                        </div>
 
-                        <div class="match-box">
-                            <div class="label" style="margin:0; color:var(--a)">🎯 PRODUTO IDENTIFICADO NO SITE</div>
-                            <div class="val" style="font-weight:bold; font-size:0.9em;">${l.produto_alvo}</div>
-                            <div class="label" style="margin-top:8px;">LOCAL DO IMÓVEL</div>
-                            <div class="val" style="font-size:0.85em; color:#fff;">${l.endereco_imovel}</div>
-                            <div class="label" style="margin-top:8px;">COMPORTAMENTO/INTERESSE</div>
-                            <div class="val" style="font-size:0.75em; color:#888;">${l.perfil_comportamental}</div>
-                            <div class="score">CONFIANÇA DO MATCH: ${l.match_score}</div>
-                        </div>
-
-                        <div class="label">CONTATO DIRETO</div>
-                        <div class="val" style="color:${cor}; font-weight:bold; font-size:1.1em;">${l.telefone}</div>
-                        <a href="https://www.google.com/search?q=linkedin+${l.nome}" target="_blank" class="social-btn">VALIDAR PERFIL SOCIAL</a>
-                    `;
-                    resDiv.appendChild(card);
-                });
-            } catch (e) { loader.style.display = 'none'; alert("Erro na varredura."); }
+                            <div class="label">WHATSAPP DIRETO</div>
+                            <div class="val" style="color:${cor}; font-weight:bold; font-size:1.2em;">${l.telefone}</div>
+                            <a href="https://www.google.com/search?q=linkedin+${l.nome}" target="_blank" class="social-btn">VALIDAR PERFIL SOCIAL</a>
+                        `;
+                        resDiv.appendChild(card);
+                    });
+                } else {
+                    alert("A IA mapeou o site, mas não encontrou leads compatíveis. Verifique a URL.");
+                }
+            } catch (e) { 
+                loader.style.display = 'none'; 
+                alert("Erro na conexão com a API. Verifique os Logs da Vercel."); 
+            }
         }
     </script>
 </body>

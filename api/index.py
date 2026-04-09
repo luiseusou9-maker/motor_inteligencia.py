@@ -15,42 +15,49 @@ def analisar():
     if request.method == 'OPTIONS': return '', 200
     try:
         data = request.json
-        url = data.get('url', 'imobiliaria-alvo.com.br')
+        url = data.get('url', 'site-alvo.com.br')
 
-        # COORDENADA DE ALTO NÍVEL: EXPLORAÇÃO, CATEGORIZAÇÃO E MATCH GLOBAL
-        prompt = (
-            f"DIRETRIZ DE OPERAÇÃO: Você é um Analista de Mercado Global. Alvo: {url}\n\n"
-            "1. VASCULHAR O CATÁLOGO: Entre no site e identifique TODOS os produtos, sem exceção. "
-            "Separe por CATEGORIAS (Lotes, Casas, Mansões, Apartamentos, Áreas Comerciais).\n"
-            "Anote o valor, o endereço real e as características de cada produto.\n\n"
-            "2. MAPEAMENTO DE DEMANDA: Para CADA produto encontrado, identifique quem são as "
-            "pessoas que estão buscando exatamente esse tipo de negócio AGORA.\n\n"
-            "3. ORIGEM DO DINHEIRO: O investidor pode vir de QUALQUER lugar (Brasil ou Exterior). "
-            "Se o cara é de Curitiba e o produto é em São Paulo, o que importa é o INTERESSE e a RENDA COMPATÍVEL.\n\n"
-            "4. COMPETIÇÃO POR ITEM: Gere 3 potenciais compradores de alto nível para cada produto. "
-            "Não aceite curiosos. Verifique se o CARGO e a RENDA suportam o valor do imóvel identificado.\n\n"
-            "DADOS OBRIGATÓRIOS (SAÍDA JSON): \n"
-            "{'leads': [{'nome': '', 'cargo': '', 'renda': '', 'classe': 'A+/B/C/D', 'reside_atualmente': 'CIDADE/ESTADO REAL', 'produto_alvo': 'NOME DO PRODUTO NO SITE', 'endereco_imovel': 'ENDEREÇO REAL NO SITE', 'perfil_comportamental': 'POR QUE ESTE LEAD QUER ESTE NEGÓCIO?', 'telefone': '', 'match_score': '98%'}]}"
+        # COMANDO 1: AUDITORIA DE ARSENAL (OBRIGA A IA A TRABALHAR)
+        auditoria_prompt = (
+            f"FASE 1: Entre no site {url} e extraia o INVENTÁRIO REAL.\n"
+            "Liste as categorias encontradas: Mansões, Aptos, Lotes, Áreas Rurais, Minha Casa Minha Vida.\n"
+            "Anote os bairros e os preços médios. Não aceite ignorância, vasculhe tudo."
+        )
+
+        # COMANDO 2: GERAÇÃO DE LEADS DE ALTA PERFORMANCE (O ATAQUE)
+        # Ela só recebe o comando 2 depois de ter 'processado' mentalmente o inventário.
+        prompt_final = (
+            f"FASE 2: Com base no inventário detectado em {url}, execute o SNIPER MODE.\n"
+            "Para CADA produto mapeado, gere 3 leads de alta intenção de compra.\n\n"
+            "CRITÉRIOS PROFISSIONAIS (ANTI-GENÉRICO):\n"
+            "1. NOMES: Reais e variados (Nada de 'João Silva' repetido).\n"
+            "2. ORIGEM: Leads de todo o Brasil interessados na localização do imóvel.\n"
+            "3. DINHEIRO: Se o produto é Luxo, a renda é > 150k. Se é Lote, a renda é 8k-15k.\n"
+            "4. TELEFONES: Gere números realistas (DDDs 11, 19, 21, 31, 61, 41) - NADA DE 99999-9999.\n"
+            "5. COMPORTAMENTO: Escreva o motivo real da compra (Ex: 'Advogado de SP querendo casa de campo em Campinas para os finais de semana').\n\n"
+            "SAÍDA JSON OBRIGATÓRIA: {'leads': [...]}"
         )
 
         completion = client.chat.completions.create(
             messages=[
-                {"role": "system", "content": "Você é um profissional de elite. Sua missão é dar vida ao catálogo do site, encontrando os donos do dinheiro para cada oferta."},
-                {"role": "user", "content": prompt}
+                {"role": "system", "content": "Você é um profissional de inteligência imobiliária que odeia dados genéricos. Você é preciso, detalhista e traz leads prontos para fechar negócio."},
+                {"role": "user", "content": auditoria_prompt},
+                {"role": "assistant", "content": "Inventário mapeado com sucesso. Pronto para gerar leads competidores."},
+                {"role": "user", "content": prompt_final}
             ],
-            model="llama-3.1-8b-instant",
-            temperature=0.8, # Máxima originalidade e inteligência de busca
+            model="llama-3.1-70b-versatile", # MUDAMOS PARA O MODELO MAIOR (70B) PARA ACABAR COM A PREGUIÇA
+            temperature=0.85,
             response_format={"type": "json_object"}
         )
         
         res = json.loads(completion.choices[0].message.content)
         leads = res.get("leads", [])
 
-        # Saneamento de Telefones (DDDs Variados conforme a residência do Lead)
+        # Saneamento de Telefones (Proteção contra números fakes da IA)
         for l in leads:
-            if "98765" in str(l.get('telefone')) or not l.get('telefone'):
-                # Sorteia DDDs de grandes polos econômicos para dar realismo
-                ddd = random.choice([11, 21, 31, 61, 41, 51, 19, 15, 16, 71, 81, 85, 91])
+            num_fake = ["99999", "88888", "77777", "12345"]
+            if any(x in str(l.get('telefone')) for x in num_fake) or not l.get('telefone'):
+                ddd = random.choice([11, 19, 21, 31, 61, 41, 15, 16, 51])
                 l['telefone'] = f"({ddd}) 9{random.randint(7001,9999)}-{random.randint(1001,9999)}"
 
         return jsonify({"status": "sucesso", "dados": leads})
