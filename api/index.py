@@ -18,27 +18,23 @@ def analisar():
         data = request.json
         url = data.get('url')
 
-        # PROTOCOLO DE DUAS ETAPAS: SCAN DE PRODUTO + CRUZAMENTO DE LEADS
-        prompt_operacional = (
-            f"DIRETRIZ OBRIGATÓRIA PARA O AGENTE:\n"
-            f"1. ACESSE O LINK: {url} e identifique EXATAMENTE o que é vendido (Imóveis, Carros, etc).\n"
-            f"2. MAPEIE O INVENTÁRIO: Liste mentalmente os 3 produtos mais caros, os médios e os de entrada.\n"
-            f"3. GERAÇÃO DE LEADS (30 LEADS): Gere 10 leads para cada classe (A+, B, C).\n\n"
-            "CRITÉRIOS DE ASSERTIVIDADE REAIS:\n"
-            "- LEADS CLASSE A+: Somente CEOs ou Médicos com renda > 80k para os produtos de luxo do site.\n"
-            "- LEADS CLASSE B: Profissionais liberais com renda 15k-35k para os produtos médios do site.\n"
-            "- LEADS CLASSE C: Assalariados ou autônomos com renda 5k-12k para os itens de entrada do site.\n\n"
-            "REGRAS DE OURO:\n"
-            "- Proibido oferecer algo que não tem no site (Ex: Se for site de casa, não ofereça carro).\n"
-            "- O campo 'PRODUTO' deve citar o nome/modelo/bairro real encontrado no link.\n"
-            "- O campo 'TATICA' deve ser um script de abordagem profissional, não um comentário pessoal.\n\n"
-            "Retorne JSON: {'leads': [{'nome': '...', 'cargo': '...', 'salario': '...', 'momento': '...', 'telefone': '...', 'classe': '...', 'produto': '...', 'social': '...', 'tatica': '...'}]}"
+        # COMANDO SUPREMO: FOCO NO LINK E HIERARQUIA A -> B -> C
+        prompt = (
+            f"AJA COMO UM SNIPER COMERCIAL. ACESSE O SITE: {url}\n"
+            "PASSO 1: Identifique EXATAMENTE o que é vendido. Se for imobiliária, veja os bairros e tipos de casas.\n"
+            "PASSO 2: Gere 30 leads (10 A+, 10 B, 10 C) que comprariam EXATAMENTE o que está no site.\n"
+            "REGRAS DE FERRO:\n"
+            "1. PRODUTO: Use nomes de produtos/bairros reais do site. Proibido inventar TI, limpeza ou eletrônicos.\n"
+            "2. HIERARQUIA: Organize o JSON começando pelos leads RANK A+, depois B, depois C.\n"
+            "3. REALISMO: Rank A+ (R$ 80k+), Rank B (R$ 15k-40k), Rank C (R$ 5k-12k).\n"
+            "4. SOCIAL: Gere links de busca (Instagram/LinkedIn) para o nome e cargo do lead.\n"
+            "Retorne APENAS o JSON: {'leads': [{'nome': '...', 'cargo': '...', 'salario': '...', 'momento': '...', 'telefone': '...', 'classe': '...', 'produto': '...', 'social': '...', 'tatica': '...'}]}"
         )
 
         completion = client.chat.completions.create(
             messages=[
-                {"role": "system", "content": "Você é um Especialista em Inteligência de Inventário. Sua missão é ler o site e encontrar compradores reais para os produtos específicos que estão na vitrine."},
-                {"role": "user", "content": prompt_operacional}
+                {"role": "system", "content": "Você é um robô de extração de dados de inventário. Você não alucina. Você só cria leads baseados nos produtos reais do link fornecido."},
+                {"role": "user", "content": prompt}
             ],
             model="llama-3.1-8b-instant",
             response_format={"type": "json_object"}
@@ -46,7 +42,7 @@ def analisar():
         
         leads = json.loads(completion.choices[0].message.content).get("leads", [])
 
-        # Persistência no Supabase
+        # Salva no banco silenciosamente
         for l in leads:
             try:
                 supabase.table("leads_hiper_assertivos").insert({
@@ -55,8 +51,7 @@ def analisar():
                     "telefone": l.get("telefone"),
                     "classe_social": f"{l.get('classe')} ({l.get('salario')})",
                     "produto_sugerido": l.get("produto"),
-                    "estagio_compra": l.get("momento"),
-                    "tatica_abordagem": l.get("social")
+                    "estagio_compra": l.get("momento")
                 }).execute()
             except: pass
 

@@ -11,27 +11,17 @@
         .container { max-width: 1100px; margin: auto; }
         h1 { font-family: 'Orbitron', sans-serif; color: var(--neon-green); text-shadow: 0 0 15px var(--neon-green); font-size: 2.5em; margin-bottom: 5px; }
         .subtitle { color: #666; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; }
-        
         .search-box { background: var(--card-bg); padding: 30px; border: 1px solid #222; border-radius: 5px; margin-bottom: 40px; }
         input { width: 70%; padding: 15px; background: #000; border: 1px solid #333; color: var(--neon-green); font-family: 'Share Tech Mono'; font-size: 1.1em; outline: none; }
-        input:focus { border-color: var(--neon-green); box-shadow: 0 0 10px rgba(0,255,65,0.2); }
-        
-        button { background: var(--neon-green); color: #000; padding: 15px 40px; border: none; font-family: 'Orbitron', sans-serif; font-weight: bold; cursor: pointer; transition: 0.3s; margin-left: 10px; }
+        button { background: var(--neon-green); color: #000; padding: 15px 40px; border: none; font-family: 'Orbitron', sans-serif; font-weight: bold; cursor: pointer; transition: 0.3s; }
         button:hover { background: #fff; box-shadow: 0 0 20px var(--neon-green); }
-
         #resultados { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
         .card { background: var(--card-bg); border: 1px solid #222; padding: 20px; border-left: 4px solid var(--neon-green); position: relative; transition: 0.3s; }
-        .card:hover { border-color: var(--neon-green); transform: translateY(-5px); }
         .card h3 { color: #fff; margin-top: 10px; font-family: 'Orbitron'; font-size: 1.2em; }
         .badge { background: #1a1a1a; padding: 4px 8px; border: 1px solid var(--neon-green); font-size: 0.8em; border-radius: 3px; font-weight: bold; }
-        .salary { color: #fff; font-weight: bold; }
-        .momento { font-weight: bold; text-transform: uppercase; font-size: 0.9em; }
         .label { color: #555; font-size: 0.8em; text-transform: uppercase; margin-bottom: 2px; }
         .data-field { margin-bottom: 12px; }
-        
-        .social-link { display: inline-block; margin-top: 5px; color: #00f3ff; text-decoration: none; border-bottom: 1px solid transparent; transition: 0.3s; }
-        .social-link:hover { border-color: #00f3ff; text-shadow: 0 0 5px #00f3ff; }
-        
+        .social-link { display: inline-block; margin-top: 5px; color: #00f3ff; text-decoration: none; border-bottom: 1px solid #00f3ff; font-size: 0.85em; }
         .loading { display: none; color: var(--neon-green); font-size: 1.2em; margin-bottom: 20px; text-shadow: 0 0 5px var(--neon-green); }
     </style>
 </head>
@@ -40,13 +30,11 @@
     <div class="container">
         <h1>NEURAL COMMANDER</h1>
         <p class="subtitle">SISTEMA DE EXTRAÇÃO DE LEADS MULTICLASSE (A, B, C)</p>
-        
         <div class="search-box">
-            <input type="text" id="urlInput" placeholder="INFILTRAR EM: IMÓVEIS, CARROS, ESTÉTICA, LUXO...">
-            <button onclick="executarVarredura()">VARREDURA</button>
+            <input type="text" id="urlInput" placeholder="URL DO ALVO (EX: HIT IMÓVEIS)...">
+            <button onclick="executarVarredura()">INICIAR VARREDURA</button>
         </div>
-
-        <div id="loader" class="loading">📡 CONECTANDO AO SATÉLITE... ANALISANDO DNA DO SITE...</div>
+        <div id="loader" class="loading">📡 Mapeando Inventário... Localizando compradores por Rank...</div>
         <div id="resultados"></div>
     </div>
 
@@ -57,7 +45,8 @@
             const loader = document.getElementById('loader');
 
             if (!url) return alert("Comandante, forneça uma URL!");
-
+            
+            resDiv.innerHTML = ''; // Limpa a tela para a nova ordem
             loader.style.display = 'block';
 
             try {
@@ -72,50 +61,46 @@
 
                 if (data.dados) {
                     data.dados.forEach(lead => {
+                        const classe = lead.classe || "C";
+                        let corRank = 'var(--neon-green)';
+                        if (classe.includes('B')) corRank = 'var(--neon-yellow)';
+                        if (classe.includes('C')) corRank = 'var(--neon-orange)';
+                        
                         const card = document.createElement('div');
                         card.className = 'card';
-                        
-                        // Lógica de Cores Dinâmicas por Rank
-                        let corRank = 'var(--neon-green)';
-                        if (lead.classe.includes('B')) corRank = 'var(--neon-yellow)';
-                        if (lead.classe.includes('C')) corRank = 'var(--neon-orange)';
-                        
                         card.style.borderLeftColor = corRank;
 
                         card.innerHTML = `
                             <div class="data-field">
-                                <span class="badge" style="border-color: ${corRank}; color: ${corRank}">RANK ${lead.classe}</span>
-                                <span style="margin-left:10px" class="salary">💰 ${lead.salario}</span>
+                                <span class="badge" style="border-color: ${corRank}; color: ${corRank}">RANK ${classe}</span>
+                                <span style="margin-left:10px" class="salary">💰 ${lead.salario || '---'}</span>
                             </div>
                             <h3>${lead.nome}</h3>
                             <div class="data-field">
-                                <div class="label">Ocupação Principal</div>
+                                <div class="label">Ocupação</div>
                                 <div>${lead.cargo}</div>
                             </div>
                             <div class="data-field">
-                                <div class="label">Momento de Compra</div>
-                                <div class="momento" style="color: ${lead.momento.includes('Pronto') ? 'var(--neon-green)' : 'var(--neon-yellow)'}">${lead.momento}</div>
+                                <div class="label">Produto do Site</div>
+                                <div style="color:#fff; font-weight:bold;">🏠 ${lead.produto}</div>
                             </div>
                             <div class="data-field">
-                                <div class="label">Produto Encaixado</div>
-                                <div style="color:#fff; font-weight:bold;">📦 ${lead.produto}</div>
-                            </div>
-                            <div class="data-field">
-                                <div class="label">Contato & Social</div>
-                                <div style="color:var(--neon-green)">📱 ${lead.telefone}</div>
+                                <div class="label">Ação Comercial</div>
+                                <div style="color:var(--neon-green); font-size:0.9em">📱 ${lead.telefone}</div>
                                 <a href="${lead.social}" target="_blank" class="social-link">🔗 ANALISAR PERFIL SOCIAL</a>
                             </div>
                             <div class="data-field">
-                                <div class="label">Tática Recomendada</div>
-                                <div style="font-size:0.85em; color:#888;">${lead.tatica}</div>
+                                <div class="label">Estratégia</div>
+                                <div style="font-size:0.8em; color:#777;">${lead.tatica}</div>
                             </div>
                         `;
-                        resDiv.insertBefore(card, resDiv.firstChild);
+                        // APPEND para manter Rank A no topo e C embaixo
+                        resDiv.appendChild(card);
                     });
                 }
             } catch (err) {
                 loader.style.display = 'none';
-                alert("Falha na varredura: " + err);
+                alert("Erro: " + err.message);
             }
         }
     </script>
