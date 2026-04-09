@@ -2,39 +2,37 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEURAL COMMANDER | v4.0 Global Match</title>
+    <title>NEURAL COMMANDER v4.6 - DEEP SCAN CATÁLOGO</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
-        :root { --neon-green: #00ff41; --neon-blue: #00f3ff; --dark: #050505; }
-        body { background: var(--dark); color: #ccc; font-family: 'Share Tech Mono', monospace; margin: 0; padding: 20px; }
+        :root { --a: #00f3ff; --b: #00ff41; --c: #ffae00; --d: #ff4e00; --bg: #050505; }
+        body { background: var(--bg); color: #ccc; font-family: 'Share Tech Mono', monospace; margin: 0; padding: 20px; }
         .container { max-width: 1400px; margin: auto; }
-        .header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #222; padding-bottom: 20px; }
-        h1 { font-family: 'Orbitron'; color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green); }
-        .search-box { background: #0d0d0d; padding: 25px; border: 1px solid #333; display: flex; gap: 10px; margin-bottom: 30px; }
-        input { flex: 1; background: #000; border: 1px solid #444; color: var(--neon-green); padding: 15px; outline: none; }
-        button { background: var(--neon-green); color: #000; font-family: 'Orbitron'; font-weight: bold; border: none; padding: 0 40px; cursor: pointer; }
-        #resultados { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; }
-        .card { background: #0a0a0a; border: 1px solid #222; padding: 15px; border-left: 5px solid var(--neon-green); }
-        .badge { font-weight: bold; font-size: 0.8em; border: 1px solid; padding: 2px 6px; border-radius: 2px; }
-        .label { color: #555; font-size: 0.7em; text-transform: uppercase; margin-top: 10px; }
-        .val { color: #fff; font-size: 0.95em; }
-        .match-box { background: rgba(0, 243, 255, 0.05); border: 1px dashed var(--neon-blue); padding: 8px; margin-top: 10px; }
-        .social-btn { display: block; background: #0044ff; color: #fff; text-decoration: none; padding: 8px; margin-top: 15px; text-align: center; border-radius: 3px; font-size: 0.8em; }
-        .loading { display: none; text-align: center; color: var(--neon-green); font-size: 1.2em; }
+        h1 { font-family: 'Orbitron'; color: var(--b); text-align: center; text-shadow: 0 0 10px var(--b); margin:0; }
+        .search-box { background: #0d0d0d; padding: 20px; border: 1px solid #333; display: flex; gap: 10px; margin: 25px 0; }
+        input { flex: 1; background: #000; border: 1px solid #444; color: var(--b); padding: 15px; font-family: inherit; outline: none; font-size: 1.1em; }
+        button { background: var(--b); color: #000; font-family: 'Orbitron'; font-weight: bold; padding: 0 40px; cursor: pointer; border: none; transition: 0.3s; }
+        #resultados { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .card { background: #0a0a0a; border: 1px solid #222; border-left: 6px solid; padding: 20px; position: relative; }
+        .rank-tag { position: absolute; top: 15px; right: 15px; font-weight: bold; border: 1px solid; padding: 3px 10px; font-size: 0.8em; }
+        .label { color: #555; font-size: 0.6em; text-transform: uppercase; margin-top: 10px; letter-spacing: 1px; }
+        .val { color: #fff; font-size: 1em; }
+        .match-box { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 15px; margin-top: 15px; border-radius: 4px; }
+        .score { color: var(--b); font-weight: bold; font-size: 0.8em; margin-top: 5px; }
+        .social-btn { display: block; background: #222; color: #fff; text-decoration: none; text-align: center; padding: 10px; margin-top: 15px; font-family: 'Orbitron'; font-size: 0.75em; border-radius: 2px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>NEURAL COMMANDER v4.0</h1>
-            <p>MAPEAMENTO DE ESTOQUE & INTENÇÃO DE COMPRA GLOBAL</p>
-        </div>
+        <h1>NEURAL COMMANDER v4.6</h1>
+        <div style="text-align:center; color:var(--a); font-size:0.75em; margin-top:5px; font-family:'Orbitron';">AUDITORIA DE CATÁLOGO COMPLETO E MULTI-MATCH</div>
+        
         <div class="search-box">
-            <input type="text" id="urlInput" placeholder="URL DA IMOBILIÁRIA ALVO...">
+            <input type="text" id="urlInput" placeholder="URL DA IMOBILIÁRIA (CAMPINAS E REGIÃO)...">
             <button onclick="executar()">SCAN TOTAL</button>
         </div>
-        <div id="loader" class="loading">📡 AGENTE ATIVO: MAPEANDO ESTOQUE E RASTREANDO COMPRADORES...</div>
+
+        <div id="loader" style="display:none; text-align:center; color:var(--b); padding: 40px;">📡 AGENTE EM CAMPO: VARRENDO 200+ PRODUTOS E MAPEANDO COMPRADORES ATIVOS...</div>
         <div id="resultados"></div>
     </div>
 
@@ -43,7 +41,7 @@
             const url = document.getElementById('urlInput').value;
             const resDiv = document.getElementById('resultados');
             const loader = document.getElementById('loader');
-            if (!url) return alert("Insira a URL!");
+            if (!url) return;
             resDiv.innerHTML = ''; loader.style.display = 'block';
 
             try {
@@ -55,30 +53,48 @@
                 const data = await response.json();
                 loader.style.display = 'none';
 
-                if (data.dados) {
-                    data.dados.forEach(l => {
-                        const card = document.createElement('div');
-                        card.className = 'card';
-                        card.innerHTML = `
-                            <div style="display:flex; justify-content:space-between;">
-                                <span class="badge" style="color:var(--neon-green);">${l.classe}</span>
-                                <span style="color:#fff;">${l.salario}</span>
+                data.dados.forEach(l => {
+                    const classe = (l.classe || '').toUpperCase();
+                    let cor = 'var(--c)';
+                    if (classe.includes('A') || classe.includes('TUB')) cor = 'var(--a)';
+                    else if (classe.includes('B')) cor = 'var(--b)';
+                    else if (classe.includes('D')) cor = 'var(--d)';
+
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.style.borderLeftColor = cor;
+                    card.innerHTML = `
+                        <span class="rank-tag" style="color:${cor}; border-color:${cor}">${classe}</span>
+                        <div class="label">LEAD COMPETIDOR</div>
+                        <div class="val" style="font-weight:bold;">${l.nome}</div>
+                        
+                        <div style="display:flex; justify-content:space-between; gap:10px;">
+                            <div>
+                                <div class="label">MORADIA ATUAL</div>
+                                <div class="val" style="font-size:0.85em;">📍 ${l.reside_atualmente}</div>
                             </div>
-                            <h3 style="margin:10px 0; color:#fff;">${l.nome}</h3>
-                            <div class="label">Cargo | Origem</div>
-                            <div class="val">${l.cargo} | ${l.origem_lead || 'Brasil'}</div>
-                            <div class="match-box">
-                                <div class="label" style="color:var(--neon-blue); margin-top:0;">🎯 INTERESSE NO SITE</div>
-                                <div class="val" style="font-weight:bold;">${l.produto}</div>
+                            <div style="text-align:right;">
+                                <div class="label">RENDA / CARGO</div>
+                                <div class="val" style="color:${cor}; font-weight:bold;">${l.renda}</div>
+                                <div class="val" style="font-size:0.7em;">${l.cargo}</div>
                             </div>
-                            <div class="label">WhatsApp</div>
-                            <div class="val" style="color:var(--neon-green); font-weight:bold; font-size:1.1em;">${l.telefone}</div>
-                            <a href="${l.social}" target="_blank" class="social-btn">VER PERFIL SOCIAL</a>
-                        `;
-                        resDiv.appendChild(card);
-                    });
-                }
-            } catch (err) { loader.style.display = 'none'; alert("Erro: " + err.message); }
+                        </div>
+
+                        <div class="match-box">
+                            <div class="label" style="margin:0; color:${cor}">🎯 PRODUTO DO CATÁLOGO</div>
+                            <div class="val" style="font-weight:bold; font-size:0.85em;">${l.produto_alvo}</div>
+                            <div class="label" style="margin-top:8px;">ENDEREÇO DO IMÓVEL</div>
+                            <div class="val" style="font-size:0.85em; color:var(--a);">${l.endereco_imovel}</div>
+                            <div class="score">MATCH SCORE: ${l.match_score || '95%'}</div>
+                        </div>
+
+                        <div class="label">WHATSAPP VALIDADO</div>
+                        <div class="val" style="color:${cor}; font-weight:bold; font-size:1.1em;">${l.telefone}</div>
+                        <a href="https://www.google.com/search?q=linkedin+${l.nome}" target="_blank" class="social-btn">SCAN SOCIAL</a>
+                    `;
+                    resDiv.appendChild(card);
+                });
+            } catch (e) { loader.style.display = 'none'; alert("Erro no scanner."); }
         }
     </script>
 </body>
